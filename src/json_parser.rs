@@ -1,7 +1,3 @@
-use crate::{ OpenCloseEscape, OpenCloseEscapeList };
-
-
-
 #[derive(PartialEq, Debug)]
 pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(String, Json)>), Literal(String) }
 impl Json {
@@ -138,16 +134,48 @@ impl<'a> JsonParser<'a> {
 	/// Increments the cursor when any match is returned.
 	/// Includes quotation marks.
 	fn parse_string(&mut self) -> Option<Json> {
-		const STRING_MATCHERS:OpenCloseEscapeList = OpenCloseEscapeList::new(&[
-			OpenCloseEscape::new("'", "'", &[("\\", 1)]),
-			OpenCloseEscape::new("\"", "\"", &[("\\", 1)])
-		]);
+		const STRING_MATCHERS:&[(&str, &str, &[(&str, usize)])] = &[
+			("'", "'", &[("\\", 1)]),
+			("\"", "\"", &[("\\", 1)])
+		];
+
+		// Loop through string sets.
 		if self.cursor < self.contents_len {
-			if let Some((match_body, match_length)) = STRING_MATCHERS.match_str(&self.contents[self.cursor..]) {
-				self.cursor += match_length;
-				return Some(Json::String(match_body.to_string()));
+			let cursor_origin:usize = self.cursor;
+			let remainder_len:usize = self.contents_len - self.cursor;
+			for &(open_tag, close_tag, escapes) in STRING_MATCHERS {
+				let open_tag_len:usize = open_tag.len();
+				let close_tag_len:usize = close_tag.len();
+
+				// Try to match open-tag.
+				if open_tag_len < remainder_len && &self.contents[..open_tag_len] == open_tag {
+					let cursor_max:usize = remainder_len - close_tag_len + 1;
+					self.cursor += open_tag_len;
+					while self.cursor < cursor_max {
+
+						// Try to match end-tag.
+						if &self.contents[self.cursor..self.cursor + close_tag_len] == close_tag {
+							self.cursor += close_tag_len;
+							return Some(Json::String(self.contents[..self.cursor].to_string()));
+						}
+
+						// Try to match escapes.
+						for (escape_tag, escape_skip) in escapes {
+							let escape_tag_len:usize = escape_tag.len();
+							let cursor_escape_end:usize = self.cursor + escape_tag_len;
+							if self.cursor < cursor_escape_end && &self.contents[self.cursor..self.cursor + escape_tag_len] == *escape_tag {
+								self.cursor += escape_tag_len + escape_skip - 1; // Remove one for the cursor incrementation at the end of the loop.
+							}
+						}
+
+						// Increment cursor.
+						self.cursor += 1;
+					}
+				}
 			}
+			self.cursor = cursor_origin;
 		}
+		
 		None
 	}
 
