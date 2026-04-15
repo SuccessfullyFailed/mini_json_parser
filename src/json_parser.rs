@@ -1,5 +1,5 @@
 #[derive(PartialEq, Debug)]
-pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(String, Json)>), Literal(String) }
+pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(Json, Option<Json>)>) }
 impl Json {
 
 	/// Create a new JSON struct from JSON contents.
@@ -63,7 +63,7 @@ impl<'a> JsonParser<'a> {
 
 		// Try any of the available parser methods.
 		if self.cursor < self.contents_len {
-			let type_parser_methods:&[fn(&mut JsonParser<'a>) -> Option<Json>] = &[Self::parse_bool, Self::parse_number, Self::parse_string, Self::parse_array];
+			let type_parser_methods:&[fn(&mut JsonParser<'a>) -> Option<Json>] = &[Self::parse_bool, Self::parse_number, Self::parse_string, Self::parse_array, Self::parse_dict];
 			for parse_method in type_parser_methods {
 				if let Some(json) = parse_method(self) {
 					return Some(json);
@@ -226,6 +226,52 @@ impl<'a> JsonParser<'a> {
 			}
 		})
 	}
+
+	/// Try to parse a dictionary.
+	/// Increments the cursor when any match is returned.
+	fn parse_dict(&mut self) -> Option<Json> {
+		const DICT_START_TAG:Tag = Tag::new("{");
+		const DICT_END_TAG:Tag = Tag::new("}");
+		const DICT_SEPARATOR_TAG:Tag = Tag::new(",");
+		const DICT_VALUE_SEPARATOR_TAG:Tag = Tag::new(":");
+
+		// Match dict start.
+		self.try_with_cursor(|inner_self| {
+			if inner_self.skip_if_remainder_starts_with(DICT_START_TAG.str) {
+				inner_self.skip_whitespace();
+
+				// Keep collection json keys.
+				let mut sub_json:Vec<(Json, Option<Json>)> = Vec::new();
+				while let Some(key) = inner_self.parse_next() {
+					inner_self.skip_whitespace();
+
+					// Match value to the key.
+					let value:Option<Json> = {
+						if inner_self.skip_if_remainder_starts_with(DICT_VALUE_SEPARATOR_TAG.str) {
+							inner_self.parse_next()
+						} else {
+							None
+						}
+					};
+					sub_json.push((key, value));
+					inner_self.skip_whitespace();
+
+					// Continue matching more values, end the dict or conclude invalid dict.
+					if inner_self.skip_if_remainder_starts_with(DICT_SEPARATOR_TAG.str) {
+						inner_self.skip_whitespace();
+					} else if inner_self.skip_if_remainder_starts_with(DICT_END_TAG.str) {
+						break;
+					} else {
+						return None;
+					}
+				}
+				Some(Json::Dict(sub_json))
+			} else {
+				None
+			}
+		})
+	}
+	
 
 
 	/* HELPER METHODS */

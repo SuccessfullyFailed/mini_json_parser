@@ -78,4 +78,15 @@ mod tests {
 
 		assert_eq!(Json::new("\n\t [0,\n\t 1]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
 	}
+
+	#[test]
+	fn can_parse_dicts() {
+		assert_eq!(Json::new("{}"), Some(Json::Dict(vec![])));
+		assert_eq!(Json::new("{0}"), Some(Json::Dict(vec![(Json::Int(0), None)])));
+		assert_eq!(Json::new("{0,1}"), Some(Json::Dict(vec![(Json::Int(0), None), (Json::Int(1), None)])));
+		assert_eq!(Json::new("{0:'a',1:'b'}"), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string())))])));
+		assert_eq!(Json::new("{0:'a',1:'b',2}"), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string()))), (Json::Int(2), None)])));
+		
+		assert_eq!(Json::new("\n\t {\n\t 0\n\t :\n\t 'a'\n\t ,\n\t 1\n\t :\n\t 'b'\n\t }\n\t "), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string())))])));
+	}
 }
