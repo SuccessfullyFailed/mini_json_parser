@@ -1,10 +1,36 @@
+use std::error::Error;
+use file_ref::FileRef;
+
+
+
 #[derive(PartialEq, Debug)]
 pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(Json, Option<Json>)>) }
 impl Json {
 
+	/// Create a new JSON struct from a file.
+	pub fn from_file(file_path:&str) -> Result<Json, Box<dyn Error>> {
+		let file_contents:String = FileRef::new(file_path).read()?;
+		match Json::new(&file_contents) {
+			Some(json) => Ok(json),
+			None => Err("Could not parse file contents into json.".into())
+		}
+	}
+
 	/// Create a new JSON struct from JSON contents.
 	pub fn new(contents:&str) -> Option<Json> {
 		JsonParser::new(contents).parse_all()
+	}
+}
+impl ToString for Json {
+	fn to_string(&self) -> String {
+		match self {
+			Json::Bool(value) => (if *value { "true" } else { "false" }).to_string(),
+			Json::Int(value) => value.to_string(),
+			Json::Float(value) => value.to_string(),
+			Json::String(value) => value.to_string(),
+			Json::Array(sub_json) => format!("[{}]", sub_json.iter().map(|json| json.to_string()).collect::<Vec<String>>().join(",")),
+			Json::Dict(sub_json) => format!("{{{}}}", sub_json.iter().map(|(key, value)| key.to_string() + &value.as_ref().map(|v| ":".to_string() + &v.to_string()).unwrap_or_default()).collect::<Vec<String>>().join(","))
+		}
 	}
 }
 

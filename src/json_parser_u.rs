@@ -89,4 +89,12 @@ mod tests {
 		
 		assert_eq!(Json::new("\n\t {\n\t 0\n\t :\n\t 'a'\n\t ,\n\t 1\n\t :\n\t 'b'\n\t }\n\t "), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string())))])));
 	}
+
+	#[test]
+	fn to_string() {
+		assert_eq!(
+			Json::Dict(vec![(Json::String("'values'".to_string()), Some(Json::Array(vec![Json::Bool(true), Json::Int(10), Json::Float(0.3)])))]).to_string(),
+			"{'values':[true,10,0.3]}"
+		);
+	}
 }

@@ -3,5 +3,13 @@
 version = 4
 
 [[package]]
+name = "file_ref"
+version = "0.1.2"
+source = "git+https://github.com/SuccessfullyFailed/file_ref#50018a1d2e4fd200681440718af652027ad50bc5"
+
+[[package]]
 name = "mini_json_parser"
 version = "0.1.0"
+dependencies = [
+ "file_ref",
+]
