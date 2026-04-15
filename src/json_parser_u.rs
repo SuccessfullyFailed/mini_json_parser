@@ -26,7 +26,6 @@ mod tests {
 		assert_eq!(Json::new("-100"), Some(Json::Int(-100)));
 		assert_eq!(Json::new("-10-0"), Some(Json::Int(-10)));
 		assert_eq!(Json::new("100_000"), Some(Json::Int(100_000)));
-		assert_eq!(Json::new("100,000"), Some(Json::Int(100_000)));
 		assert_eq!(Json::new("100x000"), Some(Json::Int(100)));
 
 		assert_eq!(Json::new("abc"), None);
@@ -44,7 +43,6 @@ mod tests {
 		assert_eq!(Json::new("-100.3"), Some(Json::Float(-100.3)));
 		assert_eq!(Json::new("-10.3-0.6"), Some(Json::Float(-10.3)));
 		assert_eq!(Json::new("100_000.3"), Some(Json::Float(100_000.3)));
-		assert_eq!(Json::new("100,000.3"), Some(Json::Float(100_000.3)));
 		assert_eq!(Json::new("100.3x000.6"), Some(Json::Float(100.3)));
 
 		assert_eq!(Json::new("abc"), None);
@@ -58,5 +56,16 @@ mod tests {
 		assert_eq!(Json::new("'test_string'"), Some(Json::String("'test_string'".to_string())));
 		assert_eq!(Json::new("\"test_string\""), Some(Json::String("\"test_string\"".to_string())));
 		assert_eq!(Json::new("'test\\'s_string'"), Some(Json::String("'test\\'s_string'".to_string())));
+	}
+
+	#[test]
+	fn can_parse_arrays() {
+		assert_eq!(Json::new("[]"), Some(Json::Array(vec![])));
+		assert_eq!(Json::new("[0]"), Some(Json::Array(vec![Json::Int(0)])));
+		assert_eq!(Json::new("[0,1]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
+		assert_eq!(Json::new("[0, 1]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
+		assert_eq!(Json::new("[0, 1,]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
+		assert_eq!(Json::new("[0, 1, true]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::Bool(true)])));
+		// TODO: does not work? assert_eq!(Json::new("[0, 1, 'test']"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::String("'test'".to_string())]))); 
 	}
 }

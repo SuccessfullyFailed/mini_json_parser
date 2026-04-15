@@ -50,7 +50,7 @@ impl<'a> JsonParser<'a> {
 
 		// Try any of the available parser methods.
 		if self.cursor < self.contents_len {
-			let type_parser_methods:&[fn(&mut JsonParser<'a>) -> Option<Json>] = &[Self::parse_bool, Self::parse_number, Self::parse_string];
+			let type_parser_methods:&[fn(&mut JsonParser<'a>) -> Option<Json>] = &[Self::parse_bool, Self::parse_number, Self::parse_string, Self::parse_array];
 			for parse_method in type_parser_methods {
 				if let Some(json) = parse_method(self) {
 					return Some(json);
@@ -107,7 +107,7 @@ impl<'a> JsonParser<'a> {
 	fn parse_number(&mut self) -> Option<Json> {
 		const FLOAT_SEPARATOR_CHAR:char = '.';
 		const NEGATIVE:char = '-';
-		const SPACING_CHARS:&[char] = &['_', ','];
+		const SPACING_CHARS:&[char] = &['_'];
 		const CHAR_IS_NUMBER_LIKE:fn(char) -> bool = |char| char.is_numeric() || char == FLOAT_SEPARATOR_CHAR || SPACING_CHARS.contains(&char);
 		
 		if self.cursor < self.contents_len && CHAR_IS_NUMBER_LIKE(self.contents_as_chars[self.cursor]) || self.contents_as_chars[self.cursor] == NEGATIVE {
@@ -176,6 +176,57 @@ impl<'a> JsonParser<'a> {
 			self.cursor = cursor_origin;
 		}
 		
+		None
+	}
+
+	/// Try to parse an array.
+	/// Increments the cursor when any match is returned.
+	fn parse_array(&mut self) -> Option<Json> {
+		const ARRAY_START_TAG:&str = "[";
+		const ARRAY_START_TAG_LEN:usize = ARRAY_START_TAG.len();
+		const ARRAY_END_TAG:&str = "]";
+		const ARRAY_END_TAG_LEN:usize = ARRAY_END_TAG.len();
+		const ARRAY_SEPARATOR_TAG:&str = ",";
+		const ARRAY_SEPARATOR_TAG_LEN:usize = ARRAY_SEPARATOR_TAG.len();
+
+		// Match start tag.
+		if self.cursor < self.contents_len - ARRAY_START_TAG_LEN && self.contents[self.cursor..].starts_with(ARRAY_START_TAG) {
+			let cursor_origin:usize = self.cursor;
+			self.cursor += ARRAY_START_TAG_LEN;
+
+			// Sub-match as much as possible.
+			let mut sub_json:Vec<Json> = Vec::new();
+			let mut parse_invalid:bool = false;
+			while let Some(sub_match) = self.parse_next() {
+				sub_json.push(sub_match);
+				if self.cursor >= self.contents_len {
+					parse_invalid = true;
+					break;
+				} else {
+					let remainder:&str = &self.contents[self.cursor..];
+					if remainder.starts_with(ARRAY_SEPARATOR_TAG) {
+						self.cursor += ARRAY_SEPARATOR_TAG_LEN;
+						self.skip_whitespace();
+						if self.cursor < self.contents_len && self.contents[self.cursor..].starts_with(ARRAY_END_TAG) {
+							break;
+						}
+					} else if remainder.starts_with(ARRAY_END_TAG) {
+						self.cursor += ARRAY_END_TAG_LEN;
+						break;
+					} else {
+						parse_invalid = true;
+						break;
+					}
+				}
+			}
+			if parse_invalid {
+				self.cursor = cursor_origin;
+			} else {
+				return Some(Json::Array(sub_json));
+			}
+		}
+
+		// No array was found.
 		None
 	}
 
