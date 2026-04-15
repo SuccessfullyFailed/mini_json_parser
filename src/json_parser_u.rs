@@ -66,6 +66,6 @@ mod tests {
 		assert_eq!(Json::new("[0, 1]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
 		assert_eq!(Json::new("[0, 1,]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
 		assert_eq!(Json::new("[0, 1, true]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::Bool(true)])));
-		// TODO: does not work? assert_eq!(Json::new("[0, 1, 'test']"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::String("'test'".to_string())]))); 
+		assert_eq!(Json::new("[0, 1, 'test']"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::String("'test'".to_string())]))); 
 	}
 }

@@ -172,10 +172,12 @@ impl<'a> JsonParser<'a> {
 		if self.has_remainder() {
 			self.try_with_cursor(|inner_self| {
 				for (open_tag, close_tag, escapes) in STRING_MATCHERS {
-					if inner_self.skip_if_remainder_starts_with(open_tag.str) {
+					if inner_self.remainder_starts_with(open_tag.str) {
+						let string_start:usize = inner_self.cursor;
+						inner_self.cursor += open_tag.len;
 						while inner_self.has_remainder() {
 							if inner_self.skip_if_remainder_starts_with(close_tag.str) {
-								return Some(Json::String(inner_self.contents[..inner_self.cursor].to_string()));
+								return Some(Json::String(inner_self.contents[string_start..inner_self.cursor].to_string()));
 							}
 							for (escape_tag, escape_skip) in *escapes {
 								if inner_self.skip_if_remainder_starts_with(escape_tag.str) {
