@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-	use crate::Json;
+	use crate::{Json, json_parser::JsonTagSet};
 
 
 
@@ -96,5 +96,32 @@ mod tests {
 			Json::Dict(vec![(Json::String("'values'".to_string()), Some(Json::Array(vec![Json::Bool(true), Json::Int(10), Json::Float(0.3)])))]).to_string(),
 			"{'values':[true,10,0.3]}"
 		);
+	}
+
+	#[test]
+	fn custom_tags() {
+		let tag_set:JsonTagSet = JsonTagSet::new("yes", "no", "un", ",", "x", &["@", "#"], &[("```", "```", &[("#", 1)])], "[[", "|", "]]", "{{", "=", "|", "}}");
+		let json:Json = Json::new_with_tag_set("{{```values```=[[yes|no|unyes|unununno|10|0,3|x0,3]]|1@2#3}}", tag_set).unwrap();
+		assert_eq!(
+			json,
+			Json::Dict(vec![
+				(
+					Json::String("```values```".to_string()),
+					Some(Json::Array(vec![
+						Json::Bool(true),
+						Json::Bool(false),
+						Json::Bool(false),
+						Json::Bool(true),
+						Json::Int(10),
+						Json::Float(0.3),
+						Json::Float(-0.3)
+					]))
+				),
+				(
+					Json::Int(123),
+					None
+				)
+			])
+		)
 	}
 }
