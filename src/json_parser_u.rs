@@ -30,7 +30,7 @@ mod tests {
 
 		assert_eq!(Json::new("abc"), None);
 		assert_eq!(Json::new("-"), None);
-		assert_eq!(Json::new("--100"), None);
+		assert_eq!(Json::new("--100"), Some(Json::Int(100)));
 	}
 
 	#[test]
@@ -47,7 +47,7 @@ mod tests {
 
 		assert_eq!(Json::new("abc"), None);
 		assert_eq!(Json::new("-"), None);
-		assert_eq!(Json::new("--100"), None);
+		assert_eq!(Json::new("--100.0"), Some(Json::Float(100.0)));
 		assert_eq!(Json::new("-."), None);
 	}
 
