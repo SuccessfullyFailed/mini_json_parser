@@ -2,6 +2,7 @@ use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
 
 
 
+#[derive(Clone)]
 pub struct JsonArrayTags {
 	pub open:&'static str,
 	pub separator:&'static str,

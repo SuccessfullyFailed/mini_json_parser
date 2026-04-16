@@ -2,6 +2,7 @@ use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
 
 
 
+#[derive(Clone)]
 pub struct JsonStringTags {
 	pub quote_types:&'static [(&'static str, &'static str, &'static [(&'static str, usize)])] // Open tag, close tag, escapes tag and skip size
 }

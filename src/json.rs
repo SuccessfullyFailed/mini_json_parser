@@ -67,7 +67,7 @@ impl ToString for Json {
 impl PartialEq for Json {
 	fn eq(&self, other:&Self) -> bool {
 		self.json_object.json_type_name() == other.json_object.json_type_name() &&
-		self.json_object.to_json_str(&self.tags) == self.json_object.to_json_str(&other.tags)
+		self.json_object.to_json_str(&self.tags) == self.json_object.to_json_str(&self.tags) // Two json objects built from different tags are still the same object
 	}
 }
 impl Debug for Json {
@@ -156,6 +156,7 @@ impl JsonParseResult {
 
 
 
+#[derive(Clone)]
 pub struct JsonTagsSet {
 	pub bool_tags:JsonBoolTags,
 	pub number_tags:JsonNumberTags,

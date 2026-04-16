@@ -2,6 +2,7 @@ use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
 
 
 
+#[derive(Clone)]
 pub struct JsonNumberTags {
 	pub decimal_separator:&'static str,
 	pub negative:&'static str,
@@ -48,14 +49,22 @@ impl JsonNumber {
 		let mut negative_flip:bool = false;
 		while cursor < content_len && content[cursor..].starts_with(tags.negative) {
 			negative_flip = !negative_flip;
-			cursor += 1;
+			cursor += tags.negative.len();
 		}
 
 		// Parse number.
 		let number_start:usize = cursor;
 		let mut remainder:&str = &content[cursor..];
-		while !remainder.is_empty() && (remainder.chars().next().is_some_and(|char| char.is_numeric()) || remainder.starts_with(tags.decimal_separator) || tags.decorations.iter().any(|decorations| remainder.starts_with(decorations))) {
-			cursor += 1;
+		while !remainder.is_empty() {
+			if remainder.chars().next().is_some_and(|char| char.is_numeric()) {
+				cursor += 1;
+			} else if remainder.starts_with(tags.decimal_separator) {
+				cursor +=  tags.decimal_separator.len();
+			} else if let Some(decoration) = tags.decorations.iter().find(|decoration| remainder.starts_with(*decoration)) {
+				cursor += decoration.len();
+			} else {
+				break;
+			}
 			remainder = &content[cursor..];
 		}
 
