@@ -71,12 +71,6 @@ impl Json {
 	pub fn override_tag_set(&mut self, tags:JsonTags) {
 		self.tags = tags;
 	}
-
-
-
-	/* MODIFICATION METHODS */
-
-	
 }
 impl ToString for Json {
 	fn to_string(&self) -> String {
@@ -104,6 +98,44 @@ pub trait JsonObj:Send + Sync + 'static {
 
 	/// Convert the struct to a json string.
 	fn to_json_str(&self, tags:&JsonTags) -> String;
+
+	/// Wether or not this obj is the same as another.
+	fn same_as(&self, other:&dyn JsonObj) -> bool {
+		let tags:JsonTags = JsonTags::default();
+		self.json_type_name() == other.json_type_name() && self.to_json_str(&tags) == other.to_json_str(&tags)
+	}
+
+
+
+	/* CHILD METHODS */
+
+	/// Try to get a child of this JSON by index.
+	/// Will only work on Json types that support it.
+	#[allow(unused_variables)]
+	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
+		None
+	}
+
+	/// Try to get a mutable child of this JSON by index.
+	/// Will only work on Json types that support it.
+	#[allow(unused_variables)]
+	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
+		None
+	}
+
+	/// Try to get a child of this JSON by key.
+	/// Will only work on Json types that support it.
+	#[allow(unused_variables)]
+	fn child_by_key(&self, key:&dyn JsonObj) -> Option<&dyn JsonObj> {
+		None
+	}
+
+	/// Try to get a mutable child of this JSON by key.
+	/// Will only work on Json types that support it.
+	#[allow(unused_variables)]
+	fn child_by_key_mut(&mut self, key:&dyn JsonObj) -> Option<&mut dyn JsonObj> {
+		None
+	}
 }
 impl JsonObj for Json {
 
@@ -115,6 +147,35 @@ impl JsonObj for Json {
 	/// Convert the struct to a json string.
 	fn to_json_str(&self, tags:&JsonTags) -> String {
 		self.json_object.to_json_str(tags)
+	}
+
+
+
+	/* CHILD METHODS */
+
+	/// Try to get a child of this JSON by index.
+	/// Will only work on Json types that support it.
+	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
+		self.json_object.child_by_index(index)
+	}
+
+	/// Try to get a mutable child of this JSON by index.
+	/// Will only work on Json types that support it.
+	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
+		self.json_object.child_by_index_mut(index)
+	}
+
+	/// Try to get a child of this JSON by key.
+	/// Will only work on Json types that support it.
+	fn child_by_key(&self, key:&dyn JsonObj) -> Option<&dyn JsonObj> {
+		self.json_object.child_by_key(key)
+	}
+
+	/// Try to get a mutable child of this JSON by key.
+	/// Will only work on Json types that support it.
+	/// Will try to create a child if it does not exist.
+	fn child_by_key_mut(&mut self, key:&dyn JsonObj) -> Option<&mut dyn JsonObj> {
+		self.json_object.child_by_key_mut(key)
 	}
 }
 

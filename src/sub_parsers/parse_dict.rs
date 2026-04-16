@@ -1,4 +1,4 @@
-use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTags };
+use crate::{ JsonInt, JsonObj, JsonParseResult, JsonSource, JsonTags };
 
 
 
@@ -129,6 +129,48 @@ impl JsonObj for JsonDict {
 			).collect::<Vec<String>>().join(tags.dict_tags.item_separator),
 			tags.dict_tags.close
 		)
+	}
+
+
+
+	/* CHILD METHODS */
+
+	/// Try to get a child of this JSON by index.
+	/// Will only work on Json types that support it.
+	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
+		self.child_by_key(&JsonInt(index as i64))
+	}
+
+	/// Try to get a mutable child of this JSON by index.
+	/// Will only work on Json types that support it.
+	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
+		self.child_by_key_mut(&JsonInt(index as i64))
+	}
+
+	/// Try to get a child of this JSON by key.
+	/// Will only work on Json types that support it.
+	fn child_by_key(&self, key:&dyn JsonObj) -> Option<&dyn JsonObj> {
+		for (child_key, value) in &self.0 {
+			if child_key.same_as(key) {
+				if let Some(value) = value {
+					return Some(&**value);
+				}
+			}
+		}
+		None
+	}
+
+	/// Try to get a mutable child of this JSON by key.
+	/// Will only work on Json types that support it.
+	fn child_by_key_mut(&mut self, key:&dyn JsonObj) -> Option<&mut dyn JsonObj> {
+		for (child_key, value) in &mut self.0 {
+			if child_key.same_as(key) {
+				if let Some(value) = value {
+					return Some(&mut **value);
+				}
+			}
+		}
+		None
 	}
 }
 impl JsonSource for Vec<(Box<dyn JsonObj>, Option<Box<dyn JsonObj>>)> {

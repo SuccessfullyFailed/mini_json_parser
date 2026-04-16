@@ -97,6 +97,30 @@ impl JsonObj for JsonArray {
 			tags.array_tags.close
 		)
 	}
+
+
+
+	/* CHILD METHODS */
+
+	/// Try to get a child of this JSON by index.
+	/// Will only work on Json types that support it.
+	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
+		if self.0.len() < index {
+			Some(&*self.0[index])
+		} else {
+			None
+		}
+	}
+
+	/// Try to get a mutable child of this JSON by index.
+	/// Will only work on Json types that support it.
+	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
+		if self.0.len() < index {
+			Some(&mut *self.0[index])
+		} else {
+			None
+		}
+	}
 }
 impl JsonSource for Vec<Box<dyn JsonObj>> {
 	
