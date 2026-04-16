@@ -99,16 +99,17 @@ impl JsonDict {
 				} else if content[cursor..].starts_with(&dict_tags.item_separator) {
 					cursor += dict_tags.item_separator.len();
 				} else if content[cursor..].starts_with(&dict_tags.close) {
-					cursor += dict_tags.close.len();
-					break;
+					break
 				} else {
 					return None;
 				}
 			}
-			Some(JsonParseResult::new(JsonDict(items), cursor))
-		} else {
-			None
+			if cursor < content_len && content[cursor..].starts_with(dict_tags.close) {
+				cursor += dict_tags.close.len();
+				return Some(JsonParseResult::new(JsonDict(items), cursor));
+			}
 		}
+		None
 	}
 }
 impl JsonObj for JsonDict {
@@ -146,7 +147,7 @@ impl JsonSource for Vec<(Box<dyn JsonObj>, Box<dyn JsonObj>)> {
 		))
 	}
 }
-impl<T:JsonSource> JsonSource for Vec<(T, Option<T>)> {
+impl<Key:JsonSource, Value:JsonSource> JsonSource for Vec<(Key, Option<Value>)> {
 	
 	/// Turn the source into a json object.
 	fn into_json_obj(self) -> Box<dyn JsonObj> {
@@ -155,7 +156,7 @@ impl<T:JsonSource> JsonSource for Vec<(T, Option<T>)> {
 		))
 	}
 }
-impl<T:JsonSource> JsonSource for Vec<(T, T)> {
+impl<Key:JsonSource, Value:JsonSource> JsonSource for Vec<(Key, Value)> {
 	
 	/// Turn the source into a json object.
 	fn into_json_obj(self) -> Box<dyn JsonObj> {

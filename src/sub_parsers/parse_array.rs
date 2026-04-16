@@ -62,7 +62,10 @@ impl JsonArray {
 				let remainder:&str = &content[cursor..];
 				if remainder.starts_with(&array_tags.close) {
 					cursor += array_tags.close.len();
-					break;
+					return Some(JsonParseResult::new(
+						JsonArray(items),
+						cursor
+					))
 				} else if remainder.starts_with(&array_tags.separator) {
 					cursor += array_tags.separator.len();
 					continue;
@@ -73,13 +76,9 @@ impl JsonArray {
 					return None;
 				}
 			}
-			Some(JsonParseResult::new(
-				JsonArray(items),
-				cursor
-			))
-		} else {
-			None
+			
 		}
+		None
 	}
 }
 impl JsonObj for JsonArray {
