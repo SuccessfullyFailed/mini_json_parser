@@ -58,6 +58,25 @@ impl Json {
 			None
 		}
 	}
+
+	/// Return self with an overwritten tag set.
+	/// Will not modify own contents, but will change the output when the json is constructed into a string.
+	pub fn with_overridden_tag_set(mut self, tags:JsonTags) -> Self {
+		self.override_tag_set(tags);
+		self
+	}
+
+	/// Override own tag set.
+	/// Will not modify own contents, but will change the output when the json is constructed into a string.
+	pub fn override_tag_set(&mut self, tags:JsonTags) {
+		self.tags = tags;
+	}
+
+
+
+	/* MODIFICATION METHODS */
+
+	
 }
 impl ToString for Json {
 	fn to_string(&self) -> String {
