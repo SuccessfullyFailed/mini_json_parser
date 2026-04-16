@@ -1,4 +1,4 @@
-use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
+use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTags };
 
 
 
@@ -39,7 +39,7 @@ impl JsonNumber {
 
 	/// Try to parse a JsonResult from a string.
 	/// Assumes the provided str is trimmed.
-	pub(crate) fn from_str(content:&str, tags:&JsonTagsSet) -> Option<JsonParseResult> {
+	pub(crate) fn from_str(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
 		let tags:&JsonNumberTags = &tags.number_tags;
 
 		let content_len:usize = content.len();
@@ -90,7 +90,7 @@ impl JsonObj for JsonFloat {
 	}
 
 	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTagsSet) -> String {
+	fn to_json_str(&self, tags:&JsonTags) -> String {
 		self.0.to_string().replace(".", tags.number_tags.decimal_separator)
 	}
 }
@@ -102,7 +102,7 @@ impl JsonObj for JsonInt {
 	}
 
 	/// Convert the struct to a json string.
-	fn to_json_str(&self, _tags:&JsonTagsSet) -> String {
+	fn to_json_str(&self, _tags:&JsonTags) -> String {
 		self.0.to_string()
 	}
 }

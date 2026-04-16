@@ -1,4 +1,4 @@
-use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
+use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTags };
 
 
 
@@ -44,7 +44,7 @@ impl JsonString {
 
 	/// Try to parse a JsonResult from a string.
 	/// Assumes the provided str is trimmed.
-	pub(crate) fn from_str(content:&str, tags:&JsonTagsSet) -> Option<JsonParseResult> {
+	pub(crate) fn from_str(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
 		let tags:&JsonStringTags = &tags.string_tags;
 		for (open_tag, close_tag, escapes) in tags.quote_types {
 			if content.starts_with(open_tag) {
@@ -82,7 +82,7 @@ impl JsonObj for JsonString {
 	}
 
 	/// Convert the struct to a json string.
-	fn to_json_str(&self, _tags:&JsonTagsSet) -> String {
+	fn to_json_str(&self, _tags:&JsonTags) -> String {
 		// TODO: implement optional quotes. take quotes from tags and escape content.
 		format!("{}{}{}", self.open_quote, self.content, self.close_quote)
 	}

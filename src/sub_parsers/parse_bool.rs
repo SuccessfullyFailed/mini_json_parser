@@ -1,4 +1,4 @@
-use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
+use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTags };
 
 
 
@@ -37,12 +37,12 @@ impl JsonBool {
 
 	/// Try to parse a JsonResult from a string.
 	/// Assumes the provided str is trimmed.
-	pub(crate) fn from_str(content:&str, tags:&JsonTagsSet) -> Option<JsonParseResult> {
+	pub(crate) fn from_str(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
 		Self::bool_from_str(content, tags).map(|(boolean, match_length)| JsonParseResult::new(JsonBool(boolean), match_length))
 	}
 
 	/// try to parse a boolean from the given str.
-	fn bool_from_str(content:&str, tags:&JsonTagsSet) -> Option<(bool, usize)> {
+	fn bool_from_str(content:&str, tags:&JsonTags) -> Option<(bool, usize)> {
 		let bool_tags:&JsonBoolTags = &tags.bool_tags;
 
 		// TODO: not great for performance.
@@ -72,7 +72,7 @@ impl JsonObj for JsonBool {
 	}
 
 	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTagsSet) -> String {
+	fn to_json_str(&self, tags:&JsonTags) -> String {
 		if self.0 {
 			tags.bool_tags.true_tag.to_string()
 		} else {

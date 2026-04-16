@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-	use crate::{ Json, JsonStringTags, JsonTagsSet };
+	use crate::{ Json, JsonStringTags, JsonTags };
 
 
 
@@ -38,8 +38,8 @@ mod tests {
 
 	/* CUSTOM TAG SET */
 
-	fn custom_tags() -> JsonTagsSet {
-		JsonTagsSet {
+	fn custom_tags() -> JsonTags {
+		JsonTags {
 			string_tags: JsonStringTags::new(&[("{{::", "::}}", &[("//", 8)])]), // Test with custom tags should always have tags with different sizes than the default
 			..Default::default()
 		}
@@ -47,27 +47,27 @@ mod tests {
 	
 	#[test]
 	fn custom_tags_can_parse_string() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("{{::test::}}", tags.clone()), Some(Json::new("test")));
 		assert_eq!(Json::from_str_with_tag_set("{{::test with spaces::}}", tags.clone()), Some(Json::new("test with spaces")));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_escaped_string() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("{{::test//12::}}78::}}'", tags.clone()), Some(Json::new("test12::}}78")));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_string_with_whitespace() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t test\n\t ::}}\n\t ", tags.clone()), Some(Json::new("\n\t test\n\t ")));
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t test with spaces\n\t ::}}\n\t ", tags.clone()), Some(Json::new("\n\t test with spaces\n\t ")));
 	}
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_string() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("test_without_quotes", tags.clone()), None);
 		assert_eq!(Json::from_str_with_tag_set("\"test with one quote", tags.clone()), None);
 		assert_eq!(Json::from_str_with_tag_set("\"test with original quotes\"", tags.clone()), None);

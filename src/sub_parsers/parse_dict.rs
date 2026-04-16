@@ -1,4 +1,4 @@
-use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
+use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTags };
 
 
 
@@ -56,7 +56,7 @@ impl JsonDict {
 
 	/// Try to parse a JsonResult from a string.
 	/// Assumes the provided str is trimmed.
-	pub(crate) fn from_str(content:&str, tags:&JsonTagsSet) -> Option<JsonParseResult> {
+	pub(crate) fn from_str(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
 		let dict_tags:&JsonDictTags = &tags.dict_tags;
 		
 		if content.starts_with(dict_tags.open) {
@@ -120,7 +120,7 @@ impl JsonObj for JsonDict {
 	}
 
 	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTagsSet) -> String {
+	fn to_json_str(&self, tags:&JsonTags) -> String {
 		format!(
 			"{}{}{}",
 			tags.dict_tags.open,

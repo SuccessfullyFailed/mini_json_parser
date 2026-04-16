@@ -1,4 +1,4 @@
-use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTagsSet };
+use crate::{ JsonObj, JsonParseResult, JsonSource, JsonTags };
 
 
 
@@ -48,7 +48,7 @@ impl JsonArray {
 
 	/// Try to parse a JsonResult from a string.
 	/// Assumes the provided str is trimmed.
-	pub(crate) fn from_str(content:&str, tags:&JsonTagsSet) -> Option<JsonParseResult> {
+	pub(crate) fn from_str(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
 		let array_tags:&JsonArrayTags = &tags.array_tags;
 		if content.starts_with(array_tags.open) {
 			let mut items:Vec<Box<dyn JsonObj>> = Vec::new();
@@ -89,7 +89,7 @@ impl JsonObj for JsonArray {
 	}
 
 	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTagsSet) -> String {
+	fn to_json_str(&self, tags:&JsonTags) -> String {
 		format!(
 			"{}{}{}",
 			tags.array_tags.open,

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-	use crate::{ Json, JsonBoolTags, JsonTagsSet };
+	use crate::{ Json, JsonBoolTags, JsonTags };
 
 
 
@@ -55,8 +55,8 @@ mod tests {
 
 	/* CUSTOM TAG SET */
 
-	fn custom_tags() -> JsonTagsSet {
-		JsonTagsSet {
+	fn custom_tags() -> JsonTags {
+		JsonTags {
 			bool_tags: JsonBoolTags::new("yes", "nah", "not"), // Test with custom tags should always have tags with different sizes than the default
 			..Default::default()
 		}
@@ -64,14 +64,14 @@ mod tests {
 	
 	#[test]
 	fn custom_tags_can_parse_boolean() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("yes", tags.clone()), Some(Json::new(true)));
 		assert_eq!(Json::from_str_with_tag_set("nah", tags.clone()), Some(Json::new(false)));
 	}
 
 	#[test]
 	fn custom_tags_can_parse_boolean_case_insensitive() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("yes", tags.clone()), Some(Json::new(true)));
 		assert_eq!(Json::from_str_with_tag_set("Yes", tags.clone()), Some(Json::new(true)));
 		assert_eq!(Json::from_str_with_tag_set("YeS", tags.clone()), Some(Json::new(true)));
@@ -85,7 +85,7 @@ mod tests {
 
 	#[test]
 	fn custom_tags_can_parse_boolean_flip() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("notyes", tags.clone()), Some(Json::new(false)));
 		assert_eq!(Json::from_str_with_tag_set("notnah", tags.clone()), Some(Json::new(true)));
 		assert_eq!(Json::from_str_with_tag_set("notnotyes", tags.clone()), Some(Json::new(true)));
@@ -96,7 +96,7 @@ mod tests {
 
 	#[test]
 	fn custom_tags_can_parse_boolean_with_whitespace() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("\n\t yes\n\t ", tags.clone()), Some(Json::new(true)));
 		assert_eq!(Json::from_str_with_tag_set("\n\t nah\n\t ", tags.clone()), Some(Json::new(false)));
 		assert_eq!(Json::from_str_with_tag_set("\n\t notnah\n\t ", tags.clone()), Some(Json::new(true)));
@@ -104,7 +104,7 @@ mod tests {
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_boolean() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("true", tags.clone()), None);
 		assert_eq!(Json::from_str_with_tag_set("false", tags.clone()), None);
 		assert_eq!(Json::from_str_with_tag_set("y es", tags.clone()), None);

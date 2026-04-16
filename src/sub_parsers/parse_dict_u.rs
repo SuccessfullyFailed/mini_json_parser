@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-	use crate::{ Json, JsonDictTags, JsonTagsSet };
+	use crate::{ Json, JsonDictTags, JsonTags };
 
 
 
@@ -32,8 +32,8 @@ mod tests {
 
 	/* CUSTOM TAG SET */
 
-	fn custom_tags() -> JsonTagsSet {
-		JsonTagsSet {
+	fn custom_tags() -> JsonTags {
+		JsonTags {
 			dict_tags: JsonDictTags::new("{{::", "==", "|_|", "::}}"),
 			..Default::default()
 		}
@@ -41,7 +41,7 @@ mod tests {
 	
 	#[test]
 	fn custom_tags_can_parse_dict() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("{{::::}}", tags.clone()), Some(Json::new(Vec::<(u8, Option<u8>)>::new())));
 		assert_eq!(Json::from_str_with_tag_set("{{::0|_|2|_|4|_|8::}}", tags.clone()), Some(Json::new(vec![(0, None::<u8>), (2, None::<u8>), (4, None::<u8>), (8, None::<u8>)])));
 		assert_eq!(Json::from_str_with_tag_set("{{::0=='a'|_|2=='b'|_|4=='c'|_|8=='d'::}}", tags.clone()), Some(Json::new(vec![(0, Some("a")), (2, Some("b")), (4, Some("c")), (8, Some("d"))])));
@@ -49,7 +49,7 @@ mod tests {
 	
 	#[test]
 	fn custom_tags_can_parse_dict_with_whitespace() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{::::}}\n\t ", tags.clone()), Some(Json::new(Vec::<(u8, Option<u8>)>::new())));
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{:: 0|_| 2|_| 4|_| 8 ::}}\n\t ", tags.clone()), Some(Json::new(vec![(0, None::<u8>), (2, None::<u8>), (4, None::<u8>), (8, None::<u8>)])));
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{:: 0 == 'a'|_| 2 == 'b'|_| 4 == 'c'|_| 8 == 'd' ::}}\n\t ", tags.clone()), Some(Json::new(vec![(0, Some("a")), (2, Some("b")), (4, Some("c")), (8, Some("d"))])));
@@ -57,7 +57,7 @@ mod tests {
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_dict() {
-		let tags:JsonTagsSet = custom_tags();
+		let tags:JsonTags = custom_tags();
 		assert_eq!(Json::from_str_with_tag_set("{{::'dict_without_end'", tags.clone()), None);
 		assert_eq!(Json::from_str_with_tag_set("::}}", tags.clone()), None);
 		assert_eq!(Json::from_str_with_tag_set("{{::'broken_sub_dict'|_| {{::::}}", tags.clone()), None);
