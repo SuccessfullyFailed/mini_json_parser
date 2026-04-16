@@ -4,7 +4,7 @@ use file_ref::FileRef;
 
 
 #[derive(PartialEq, Debug)]
-pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(Json, Option<Json>)>) }
+pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(Json, Option<Json>)>), Raw(String) }
 impl Json {
 
 	/// Create a new JSON struct from a file.
@@ -45,7 +45,8 @@ impl ToString for Json {
 				}
 			},
 			Json::Array(sub_json) => format!("[{}]", sub_json.iter().map(|json| json.to_string()).collect::<Vec<String>>().join(",")),
-			Json::Dict(sub_json) => format!("{{{}}}", sub_json.iter().map(|(key, value)| key.to_string() + &value.as_ref().map(|v| ":".to_string() + &v.to_string()).unwrap_or_default()).collect::<Vec<String>>().join(","))
+			Json::Dict(sub_json) => format!("{{{}}}", sub_json.iter().map(|(key, value)| key.to_string() + &value.as_ref().map(|v| ":".to_string() + &v.to_string()).unwrap_or_default()).collect::<Vec<String>>().join(",")),
+			Json::Raw(literal) => literal.clone()
 		}
 	}
 }
