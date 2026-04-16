@@ -37,7 +37,13 @@ impl ToString for Json {
 			Json::Bool(value) => (if *value { "true" } else { "false" }).to_string(),
 			Json::Int(value) => value.to_string(),
 			Json::Float(value) => value.to_string(),
-			Json::String(value) => value.to_string(),
+			Json::String(value) => {
+				if value.contains("\"") {
+					format!("'{}'", value)
+				} else {
+					format!("\"{}\"", value)
+				}
+			},
 			Json::Array(sub_json) => format!("[{}]", sub_json.iter().map(|json| json.to_string()).collect::<Vec<String>>().join(",")),
 			Json::Dict(sub_json) => format!("{{{}}}", sub_json.iter().map(|(key, value)| key.to_string() + &value.as_ref().map(|v| ":".to_string() + &v.to_string()).unwrap_or_default()).collect::<Vec<String>>().join(","))
 		}
@@ -253,18 +259,18 @@ impl<'a> JsonParser<'a> {
 
 	/// Try to parse a string.
 	/// Increments the cursor when any match is returned.
-	/// Includes quotation marks.
+	/// Excludes quotation marks.
 	fn parse_string(&mut self) -> Option<Json> {
 		if self.has_remainder() {
 			self.try_with_cursor(|inner_self| {
 				let tags:Arc<JsonTagSet> = Arc::clone(&inner_self.tag_set);
 				for (open_tag, close_tag, escapes) in &tags.string_quotes_set {
 					if inner_self.remainder_starts_with(open_tag) {
-						let string_start:usize = inner_self.cursor;
 						inner_self.cursor += open_tag.len();
+						let string_start:usize = inner_self.cursor;
 						while inner_self.has_remainder() {
 							if inner_self.skip_if_remainder_starts_with(close_tag) {
-								return Some(Json::String(inner_self.contents[string_start..inner_self.cursor].to_string()));
+								return Some(Json::String(inner_self.contents[string_start..inner_self.cursor - close_tag.len()].to_string()));
 							}
 							for (escape_tag, escape_skip) in escapes {
 								if inner_self.skip_if_remainder_starts_with(escape_tag) {

@@ -59,11 +59,11 @@ mod tests {
 
 	#[test]
 	fn can_parse_strings() {
-		assert_eq!(Json::new("'test_string'"), Some(Json::String("'test_string'".to_string())));
-		assert_eq!(Json::new("\"test_string\""), Some(Json::String("\"test_string\"".to_string())));
-		assert_eq!(Json::new("'test\\'s_string'"), Some(Json::String("'test\\'s_string'".to_string())));
+		assert_eq!(Json::new("'test_string'"), Some(Json::String("test_string".to_string())));
+		assert_eq!(Json::new("\"test_string\""), Some(Json::String("test_string".to_string())));
+		assert_eq!(Json::new("'test\\'s_string'"), Some(Json::String("test\\'s_string".to_string())));
 
-		assert_eq!(Json::new("\n\t 'test_string'"), Some(Json::String("'test_string'".to_string())));
+		assert_eq!(Json::new("\n\t 'test_string'"), Some(Json::String("test_string".to_string())));
 	}
 
 	#[test]
@@ -74,7 +74,7 @@ mod tests {
 		assert_eq!(Json::new("[0, 1]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
 		assert_eq!(Json::new("[0, 1,]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
 		assert_eq!(Json::new("[0, 1, true]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::Bool(true)])));
-		assert_eq!(Json::new("[0, 1, 'test']"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::String("'test'".to_string())])));
+		assert_eq!(Json::new("[0, 1, 'test']"), Some(Json::Array(vec![Json::Int(0), Json::Int(1), Json::String("test".to_string())])));
 
 		assert_eq!(Json::new("\n\t [0,\n\t 1]"), Some(Json::Array(vec![Json::Int(0), Json::Int(1)])));
 	}
@@ -84,17 +84,17 @@ mod tests {
 		assert_eq!(Json::new("{}"), Some(Json::Dict(vec![])));
 		assert_eq!(Json::new("{0}"), Some(Json::Dict(vec![(Json::Int(0), None)])));
 		assert_eq!(Json::new("{0,1}"), Some(Json::Dict(vec![(Json::Int(0), None), (Json::Int(1), None)])));
-		assert_eq!(Json::new("{0:'a',1:'b'}"), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string())))])));
-		assert_eq!(Json::new("{0:'a',1:'b',2}"), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string()))), (Json::Int(2), None)])));
+		assert_eq!(Json::new("{0:'a',1:'b'}"), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("a".to_string()))), (Json::Int(1), Some(Json::String("b".to_string())))])));
+		assert_eq!(Json::new("{0:'a',1:'b',2}"), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("a".to_string()))), (Json::Int(1), Some(Json::String("b".to_string()))), (Json::Int(2), None)])));
 		
-		assert_eq!(Json::new("\n\t {\n\t 0\n\t :\n\t 'a'\n\t ,\n\t 1\n\t :\n\t 'b'\n\t }\n\t "), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("'a'".to_string()))), (Json::Int(1), Some(Json::String("'b'".to_string())))])));
+		assert_eq!(Json::new("\n\t {\n\t 0\n\t :\n\t 'a'\n\t ,\n\t 1\n\t :\n\t 'b'\n\t }\n\t "), Some(Json::Dict(vec![(Json::Int(0), Some(Json::String("a".to_string()))), (Json::Int(1), Some(Json::String("b".to_string())))])));
 	}
 
 	#[test]
 	fn to_string() {
 		assert_eq!(
-			Json::Dict(vec![(Json::String("'values'".to_string()), Some(Json::Array(vec![Json::Bool(true), Json::Int(10), Json::Float(0.3)])))]).to_string(),
-			"{'values':[true,10,0.3]}"
+			Json::Dict(vec![(Json::String("values".to_string()), Some(Json::Array(vec![Json::Bool(true), Json::Int(10), Json::Float(0.3)])))]).to_string(),
+			"{\"values\":[true,10,0.3]}"
 		);
 	}
 
@@ -106,7 +106,7 @@ mod tests {
 			json,
 			Json::Dict(vec![
 				(
-					Json::String("```values```".to_string()),
+					Json::String("values".to_string()),
 					Some(Json::Array(vec![
 						Json::Bool(true),
 						Json::Bool(false),
