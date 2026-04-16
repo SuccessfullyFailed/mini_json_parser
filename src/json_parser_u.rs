@@ -124,4 +124,11 @@ mod tests {
 			])
 		)
 	}
+
+	#[test]
+	fn modifications() {
+		let mut original = Json::Dict(vec![(Json::String("values".to_string()), Some(Json::Array(vec![Json::Bool(true), Json::Int(10), Json::Float(0.3)])))]);
+		*original.find_by_key_mut("values").unwrap().find_by_index_mut(2).unwrap() = Json::Float(0.6);
+		assert_eq!(original, Json::Dict(vec![(Json::String("values".to_string()), Some(Json::Array(vec![Json::Bool(true), Json::Int(10), Json::Float(0.6)])))]));
+	}
 }

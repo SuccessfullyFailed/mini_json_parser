@@ -7,6 +7,8 @@ use file_ref::FileRef;
 pub enum Json { Bool(bool), Int(i64), Float(f64), String(String), Array(Vec<Json>), Dict(Vec<(Json, Option<Json>)>), Raw(String) }
 impl Json {
 
+	/* CONSTRUCTOR METHODS */
+
 	/// Create a new JSON struct from a file.
 	pub fn from_file(file_path:&str) -> Result<Json, Box<dyn Error>> {
 		Json::from_file_with_tag_set(file_path, JsonTagSet::default())
@@ -29,6 +31,64 @@ impl Json {
 	/// Create a new JSON struct from JSON contents with the specified tag set.
 	pub fn new_with_tag_set(contents:&str, tag_set:JsonTagSet) -> Option<Json> {
 		JsonParser::new(contents, tag_set).parse_all()
+	}
+
+
+
+	/* GETTER METHODS */
+
+	/// Try to find a child with the given key.
+	/// Only works if `self` is a dict.
+	/// Will not recurse or find a dict in self.
+	pub fn find_by_key(&self, key:&str) -> Option<&Json> {
+		let key:Json = Json::String(key.to_string());
+		if let Json::Dict(children) = self {
+			if let Some(child) = children.iter().find(|child| child.0 == key) {
+				if let Some(value) = &child.1 {
+					return Some(value)
+				}
+			}
+		}
+		None
+	}
+
+	/// Try to find a mutable child with the given key.
+	/// Only works if `self` is a dict.
+	/// Will not recurse or find a dict in self.
+	pub fn find_by_key_mut(&mut self, key:&str) -> Option<&mut Json> {
+		let key:Json = Json::String(key.to_string());
+		if let Json::Dict(children) = self {
+			if let Some(child) = children.iter_mut().find(|child| child.0 == key) {
+				if let Some(value) = &mut child.1 {
+					return Some(value)
+				}
+			}
+		}
+		None
+	}
+
+	/// Try to find a child with the given index.
+	/// Only works if `self` is an array.
+	/// Will not recurse or find an array in self.
+	pub fn find_by_index(&self, index:usize) -> Option<&Json> {
+		if let Json::Array(children) = self {
+			if let Some(child) = children.get(index) {
+				return Some(child);
+			}
+		}
+		None
+	}
+
+	/// Try to find a mutable child with the given index.
+	/// Only works if `self` is an array.
+	/// Will not recurse or find an array in self.
+	pub fn find_by_index_mut(&mut self, index:usize) -> Option<&mut Json> {
+		if let Json::Array(children) = self {
+			if let Some(child) = children.get_mut(index) {
+				return Some(child);
+			}
+		}
+		None
 	}
 }
 impl ToString for Json {
