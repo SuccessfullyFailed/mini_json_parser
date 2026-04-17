@@ -65,50 +65,50 @@ mod tests {
 	#[test]
 	fn custom_tags_can_parse_boolean() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("yes", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("nah", tags.clone()), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("yes", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("nah", &tags), Some(Json::new(false)));
 	}
 
 	#[test]
 	fn custom_tags_can_parse_boolean_case_insensitive() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("yes", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("Yes", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("YeS", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("YES", tags.clone()), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("yes", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("Yes", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("YeS", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("YES", &tags), Some(Json::new(true)));
 
-		assert_eq!(Json::from_str_with_tag_set("nah", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("Nah", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("NaH", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("NAH", tags.clone()), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("nah", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("Nah", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("NaH", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("NAH", &tags), Some(Json::new(false)));
 	}
 
 	#[test]
 	fn custom_tags_can_parse_boolean_flip() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("notyes", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("notnah", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("notnotyes", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("notnotnah", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("notnotnotnotnotnotnotnotnotyes", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("notnotnotnotnotnotnotnotnotnah", tags.clone()), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("notyes", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("notnah", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("notnotyes", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("notnotnah", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("notnotnotnotnotnotnotnotnotyes", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("notnotnotnotnotnotnotnotnotnah", &tags), Some(Json::new(true)));
 	}
 
 	#[test]
 	fn custom_tags_can_parse_boolean_with_whitespace() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("\n\t yes\n\t ", tags.clone()), Some(Json::new(true)));
-		assert_eq!(Json::from_str_with_tag_set("\n\t nah\n\t ", tags.clone()), Some(Json::new(false)));
-		assert_eq!(Json::from_str_with_tag_set("\n\t notnah\n\t ", tags.clone()), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t yes\n\t ", &tags), Some(Json::new(true)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t nah\n\t ", &tags), Some(Json::new(false)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t notnah\n\t ", &tags), Some(Json::new(true)));
 	}
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_boolean() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("true", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("false", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("y es", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("n ah", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("", tags.clone()), None);
+		assert_eq!(Json::from_str_with_tag_set("true", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("false", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("y es", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("n ah", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("", &tags), None);
 	}
 }

@@ -4,12 +4,14 @@ use file_ref::FileRef;
 
 
 
-// TODO: Split code here into separate files.
-
-
-pub struct Json {
-	json_object:Box<dyn JsonObj>,
-	tags:JsonTags
+#[derive(PartialEq, Debug, Clone)]
+pub enum Json {
+	Bool(bool),
+	Int(i64),
+	Float(f64),
+	String(String),
+	Array(Vec<Json>),
+	Dict(Vec<(Json, Option<Json>)>)
 }
 impl Json {
 
@@ -17,24 +19,16 @@ impl Json {
 
 	/// Create a new JSON struct from a json object.
 	pub fn new<Source:JsonSource>(json_obj:Source) -> Json {
-		Json::new_with_tag(json_obj, JsonTags::default())
-	}
-
-	/// Create a new JSON struct from a json object with the specified tag set.
-	pub fn new_with_tag<Source:JsonSource>(json_obj:Source, tags:JsonTags) -> Json {
-		Json {
-			json_object: json_obj.into_json_obj(),
-			tags
-		}
+		json_obj.into_json()
 	}
 
 	/// Create a new JSON struct from a file.
 	pub fn from_file(file_path:&str) -> Result<Json, Box<dyn Error>> {
-		Json::from_file_with_tag_set(file_path, JsonTags::default())
+		Json::from_file_with_tag_set(file_path, &JsonTags::default())
 	}
 
 	/// Create a new JSON struct from a file with the specified tag set.
-	pub fn from_file_with_tag_set(file_path:&str, tag_set:JsonTags) -> Result<Json, Box<dyn Error>> {
+	pub fn from_file_with_tag_set(file_path:&str, tag_set:&JsonTags) -> Result<Json, Box<dyn Error>> {
 		let file_contents:String = FileRef::new(file_path).read()?;
 		match Json::from_str_with_tag_set(&file_contents, tag_set) {
 			Some(json) => Ok(json),
@@ -44,138 +38,81 @@ impl Json {
 
 	/// Create a new JSON struct from JSON contents.
 	pub fn from_str(contents:&str) -> Option<Json> {
-		Json::from_str_with_tag_set(contents, JsonTags::default())
+		Json::from_str_with_tag_set(contents, &JsonTags::default())
 	}
 
 	/// Create a new JSON struct from JSON contents with the specified tag set.
-	pub fn from_str_with_tag_set(contents:&str, tags:JsonTags) -> Option<Json> {
-		if let Some(json_result) = JsonParseResult::try_any(contents, &tags) {
-			Some(Json {
-				json_object: json_result.json,
-				tags
-			})
+	pub fn from_str_with_tag_set(contents:&str, tags:&JsonTags) -> Option<Json> {
+		if let Some(json_result) = JsonParseResult::try_any(contents, tags) {
+			Some(json_result.json)
 		} else {
 			None
 		}
 	}
 
-	/// Return self with an overwritten tag set.
-	/// Will not modify own contents, but will change the output when the json is constructed into a string.
-	pub fn with_overridden_tag_set(mut self, tags:JsonTags) -> Self {
-		self.override_tag_set(tags);
-		self
-	}
 
-	/// Override own tag set.
-	/// Will not modify own contents, but will change the output when the json is constructed into a string.
-	pub fn override_tag_set(&mut self, tags:JsonTags) {
-		self.tags = tags;
+
+	/* USAGE METHODS */
+
+	/// Convert the json to a string.
+	/// Requires a tags set.
+	/// Normal to-string method is available, which will assume the default tags set.
+	pub fn to_json_string(&self, tag_set:&JsonTags) -> String {
+		match self {
+			Json::Bool(value) => {
+				if *value {
+					tag_set.bool_tags.true_tag.to_string()
+				} else {
+					tag_set.bool_tags.false_tag.to_string()
+				}
+			},
+
+			Json::Int(value) => {
+				format!(
+					"{}{}",
+					if *value < 0 { &tag_set.number_tags.negative } else { "" },
+					value.abs()
+				)
+			},
+
+			Json::Float(value) => {
+				format!(
+					"{}{}{}",
+					Json::Int(value.round() as i64).to_string(),
+					&tag_set.number_tags.decimal_separator,
+					&value.fract().to_string()[2..]
+				)
+			},
+
+			Json::String(string) => {
+				format!(
+					"{}{}{}",
+					tag_set.string_tags.quote_types[0].0,
+					string, // TODO: Add automated escaping
+					tag_set.string_tags.quote_types[0].1
+				)
+			},
+
+			Json::Array(items) => {
+				format!(
+					"[{}]",
+					items.iter().map(|item| item.to_json_string(tag_set)).collect::<Vec<String>>().join(", ")
+				)
+			},
+			Json::Dict(items) => {
+				format!(
+					"[{}]",
+					items.iter().map(|(key, value)|
+						format!("{}{}", key.to_string(), value.as_ref().map(|value| ":".to_string() + &value.to_json_string(tag_set)).unwrap_or_default())
+					).collect::<Vec<String>>().join(", ")
+				)
+			}
+		}
 	}
 }
 impl ToString for Json {
 	fn to_string(&self) -> String {
-		self.json_object.to_json_str(&self.tags)
-	}
-}
-impl PartialEq for Json {
-	fn eq(&self, other:&Self) -> bool {
-		self.json_object.json_type_name() == other.json_object.json_type_name() &&
-		self.json_object.to_json_str(&self.tags) == self.json_object.to_json_str(&self.tags) // Two json objects built from different tags are still the same object
-	}
-}
-impl Debug for Json {
-	fn fmt(&self, f:&mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}", self.to_string())
-	}
-}
-
-
-
-pub trait JsonObj:Send + Sync + 'static {
-
-	/// Get the name of the json-object type.
-	fn json_type_name(&self) -> &str;
-
-	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTags) -> String;
-
-	/// Wether or not this obj is the same as another.
-	fn same_as(&self, other:&dyn JsonObj) -> bool {
-		let tags:JsonTags = JsonTags::default();
-		self.json_type_name() == other.json_type_name() && self.to_json_str(&tags) == other.to_json_str(&tags)
-	}
-
-
-
-	/* CHILD METHODS */
-
-	/// Try to get a child of this JSON by index.
-	/// Will only work on Json types that support it.
-	#[allow(unused_variables)]
-	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
-		None
-	}
-
-	/// Try to get a mutable child of this JSON by index.
-	/// Will only work on Json types that support it.
-	#[allow(unused_variables)]
-	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
-		None
-	}
-
-	/// Try to get a child of this JSON by key.
-	/// Will only work on Json types that support it.
-	#[allow(unused_variables)]
-	fn child_by_key(&self, key:&dyn JsonObj) -> Option<&dyn JsonObj> {
-		None
-	}
-
-	/// Try to get a mutable child of this JSON by key.
-	/// Will only work on Json types that support it.
-	#[allow(unused_variables)]
-	fn child_by_key_mut(&mut self, key:&dyn JsonObj) -> Option<&mut dyn JsonObj> {
-		None
-	}
-}
-impl JsonObj for Json {
-
-	/// Get the name of the json-object type.
-	fn json_type_name(&self) -> &str {
-		self.json_object.json_type_name()
-	}
-
-	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTags) -> String {
-		self.json_object.to_json_str(tags)
-	}
-
-
-
-	/* CHILD METHODS */
-
-	/// Try to get a child of this JSON by index.
-	/// Will only work on Json types that support it.
-	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
-		self.json_object.child_by_index(index)
-	}
-
-	/// Try to get a mutable child of this JSON by index.
-	/// Will only work on Json types that support it.
-	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
-		self.json_object.child_by_index_mut(index)
-	}
-
-	/// Try to get a child of this JSON by key.
-	/// Will only work on Json types that support it.
-	fn child_by_key(&self, key:&dyn JsonObj) -> Option<&dyn JsonObj> {
-		self.json_object.child_by_key(key)
-	}
-
-	/// Try to get a mutable child of this JSON by key.
-	/// Will only work on Json types that support it.
-	/// Will try to create a child if it does not exist.
-	fn child_by_key_mut(&mut self, key:&dyn JsonObj) -> Option<&mut dyn JsonObj> {
-		self.json_object.child_by_key_mut(key)
+		self.to_json_string(&JsonTags::default())
 	}
 }
 
@@ -184,12 +121,12 @@ impl JsonObj for Json {
 pub trait JsonSource {
 	
 	/// Turn the source into a json object.
-	fn into_json_obj(self) -> Box<dyn JsonObj>;
+	fn into_json(self) -> Json;
 }
-impl<T:JsonObj + 'static> JsonSource for T {
-	
+impl JsonSource for Json {
+
 	/// Turn the source into a json object.
-	fn into_json_obj(self) -> Box<dyn JsonObj> {
-		Box::new(self)
+	fn into_json(self) -> Json {
+		self
 	}
 }

@@ -1,62 +1,12 @@
-use crate::{ JsonInt, JsonObj, JsonParseResult, JsonSource, JsonTags };
+use crate::{ Json, JsonParseResult, JsonSource, JsonTags };
 
 
 
-#[derive(Clone)]
-pub struct JsonDictTags {
-	pub open:&'static str,
-	pub key_value_separator:&'static str,
-	pub item_separator:&'static str,
-	pub close:&'static str
-}
-impl JsonDictTags {
+impl JsonParseResult {
 
-	/// Create a new JsonDictTags set.
-	pub const fn new(open:&'static str, key_value_separator:&'static str, item_separator:&'static str, close:&'static str) -> JsonDictTags {
-		JsonDictTags {
-			open,
-			key_value_separator,
-			item_separator,
-			close
-		}
-	}
-}
-impl Default for JsonDictTags {
-	fn default() -> Self {
-		JsonDictTags::new("{", ":", ",", "}")
-	}
-}
-
-
-
-pub struct JsonDict(Vec<(Box<dyn JsonObj>, Option<Box<dyn JsonObj>>)>);
-impl JsonDict {
-
-	/// Create a new json array.
-	pub fn new(items:Vec<(Box<dyn JsonObj>, Option<Box<dyn JsonObj>>)>) -> JsonDict {
-		JsonDict(items)
-	}
-
-	/// Return the array with an additional item.
-	pub fn with_item<KeyJson:JsonObj, ValueJson:JsonObj>(mut self, key:KeyJson, value:Option<ValueJson>) -> Self {
-		self.add_item(key, value);
-		self
-	}
-
-	/// Add an item to the array.
-	pub fn add_item<KeyJson:JsonObj, Value:JsonObj>(&mut self, key:KeyJson, value:Option<Value>) {
-		self.0.push((
-			Box::new(key),
-			match value {
-				Some(value) => Some(Box::new(value)),
-				None => None
-			}
-		));
-	}
-
-	/// Try to parse a JsonResult from a string.
+	/// Try to parse a dictionary JsonResult from a string.
 	/// Assumes the provided str is trimmed.
-	pub(crate) fn from_str(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
+	pub(crate) fn try_parse_dict(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
 		let dict_tags:&JsonDictTags = &tags.dict_tags;
 		
 		if content.starts_with(dict_tags.open) {
@@ -64,15 +14,15 @@ impl JsonDict {
 			cursor += JsonParseResult::whitespace_len(&content[cursor..]);
 
 			// Keep collection json keys.
-			let mut items:Vec<(Box<dyn JsonObj>, Option<Box<dyn JsonObj>>)> = Vec::new();
+			let mut items:Vec<(Json, Option<Json>)> = Vec::new();
 			let content_len:usize = content.len();
 			while let Some(key_json_result) = JsonParseResult::try_any(&content[cursor..], tags) {
-				let key:Box<dyn JsonObj> = key_json_result.json;
+				let key:Json = key_json_result.json;
 				cursor += key_json_result.match_length;
 				cursor += JsonParseResult::whitespace_len(&content[cursor..]);
 
 				// Match value to the key.
-				let value_json:Option<Box<dyn JsonObj>> = {
+				let value_json:Option<Json> = {
 					if cursor < content_len && content[cursor..].starts_with(dict_tags.key_value_separator) {
 						cursor += dict_tags.key_value_separator.len();
 						if cursor < content_len {
@@ -106,104 +56,57 @@ impl JsonDict {
 			}
 			if cursor < content_len && content[cursor..].starts_with(dict_tags.close) {
 				cursor += dict_tags.close.len();
-				return Some(JsonParseResult::new(JsonDict(items), cursor));
+				return Some(JsonParseResult::new(Json::Dict(items), cursor));
 			}
 		}
 		None
 	}
 }
-impl JsonObj for JsonDict {
-
-	/// Get the name of the json-object type.
-	fn json_type_name(&self) -> &str {
-		"dictionary"
-	}
-
-	/// Convert the struct to a json string.
-	fn to_json_str(&self, tags:&JsonTags) -> String {
-		format!(
-			"{}{}{}",
-			tags.dict_tags.open,
-			self.0.iter().map(|(key, value)|
-				format!("{}{}", key.to_json_str(tags), value.as_ref().map(|value| ":".to_string() + &value.to_json_str(tags)).unwrap_or_default())
-			).collect::<Vec<String>>().join(tags.dict_tags.item_separator),
-			tags.dict_tags.close
-		)
-	}
 
 
 
-	/* CHILD METHODS */
+#[derive(Clone)]
+pub struct JsonDictTags {
+	pub open:&'static str,
+	pub key_value_separator:&'static str,
+	pub item_separator:&'static str,
+	pub close:&'static str
+}
+impl JsonDictTags {
 
-	/// Try to get a child of this JSON by index.
-	/// Will only work on Json types that support it.
-	fn child_by_index(&self, index:usize) -> Option<&dyn JsonObj> {
-		self.child_by_key(&JsonInt(index as i64))
-	}
-
-	/// Try to get a mutable child of this JSON by index.
-	/// Will only work on Json types that support it.
-	fn child_by_index_mut(&mut self, index:usize) -> Option<&mut dyn JsonObj> {
-		self.child_by_key_mut(&JsonInt(index as i64))
-	}
-
-	/// Try to get a child of this JSON by key.
-	/// Will only work on Json types that support it.
-	fn child_by_key(&self, key:&dyn JsonObj) -> Option<&dyn JsonObj> {
-		for (child_key, value) in &self.0 {
-			if child_key.same_as(key) {
-				if let Some(value) = value {
-					return Some(&**value);
-				}
-			}
+	/// Create a new JsonDictTags set.
+	pub const fn new(open:&'static str, key_value_separator:&'static str, item_separator:&'static str, close:&'static str) -> JsonDictTags {
+		JsonDictTags {
+			open,
+			key_value_separator,
+			item_separator,
+			close
 		}
-		None
 	}
+}
+impl Default for JsonDictTags {
+	fn default() -> Self {
+		JsonDictTags::new("{", ":", ",", "}")
+	}
+}
 
-	/// Try to get a mutable child of this JSON by key.
-	/// Will only work on Json types that support it.
-	fn child_by_key_mut(&mut self, key:&dyn JsonObj) -> Option<&mut dyn JsonObj> {
-		for (child_key, value) in &mut self.0 {
-			if child_key.same_as(key) {
-				if let Some(value) = value {
-					return Some(&mut **value);
-				}
-			}
-		}
-		None
-	}
-}
-impl JsonSource for Vec<(Box<dyn JsonObj>, Option<Box<dyn JsonObj>>)> {
-	
-	/// Turn the source into a json object.
-	fn into_json_obj(self) -> Box<dyn JsonObj> {
-		Box::new(JsonDict::new(self))
-	}
-}
-impl JsonSource for Vec<(Box<dyn JsonObj>, Box<dyn JsonObj>)> {
-	
-	/// Turn the source into a json object.
-	fn into_json_obj(self) -> Box<dyn JsonObj> {
-		Box::new(JsonDict::new(
-			self.into_iter().map(|(key, value)| (key, Some(value))).collect()
-		))
-	}
-}
+
+
 impl<Key:JsonSource, Value:JsonSource> JsonSource for Vec<(Key, Option<Value>)> {
 	
 	/// Turn the source into a json object.
-	fn into_json_obj(self) -> Box<dyn JsonObj> {
-		Box::new(JsonDict::new(
-			self.into_iter().map(|(key, value)| (key.into_json_obj(), value.map(|value| value.into_json_obj()))).collect()
-		))
+	fn into_json(self) -> Json {
+		Json::Dict(
+			self.into_iter().map(|(key, value)| (key.into_json(), value.map(|value| value.into_json()))).collect()
+		)
 	}
 }
 impl<Key:JsonSource, Value:JsonSource> JsonSource for Vec<(Key, Value)> {
 	
 	/// Turn the source into a json object.
-	fn into_json_obj(self) -> Box<dyn JsonObj> {
-		Box::new(JsonDict::new(
-			self.into_iter().map(|(key, value)| (key.into_json_obj(), Some(value.into_json_obj()))).collect()
-		))
+	fn into_json(self) -> Json {
+		Json::Dict(
+			self.into_iter().map(|(key, value)| (key.into_json(), Some(value.into_json()))).collect()
+		)
 	}
 }

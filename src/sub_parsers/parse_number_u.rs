@@ -97,88 +97,88 @@ mod tests {
 	#[test]
 	fn custom_tags_can_parse_int() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("0", tags.clone()), Some(Json::new(0)));
-		assert_eq!(Json::from_str_with_tag_set("12", tags.clone()), Some(Json::new(12)));
-		assert_eq!(Json::from_str_with_tag_set("64000", tags.clone()), Some(Json::new(64000)));
+		assert_eq!(Json::from_str_with_tag_set("0", &tags), Some(Json::new(0)));
+		assert_eq!(Json::from_str_with_tag_set("12", &tags), Some(Json::new(12)));
+		assert_eq!(Json::from_str_with_tag_set("64000", &tags), Some(Json::new(64000)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_float() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("0::0", tags.clone()), Some(Json::new(0.0)));
-		assert_eq!(Json::from_str_with_tag_set("12::8", tags.clone()), Some(Json::new(12.8)));
-		assert_eq!(Json::from_str_with_tag_set("64000::6", tags.clone()), Some(Json::new(64000.6)));
+		assert_eq!(Json::from_str_with_tag_set("0::0", &tags), Some(Json::new(0.0)));
+		assert_eq!(Json::from_str_with_tag_set("12::8", &tags), Some(Json::new(12.8)));
+		assert_eq!(Json::from_str_with_tag_set("64000::6", &tags), Some(Json::new(64000.6)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_int_negative() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("!!0", tags.clone()), Some(Json::new(-0)));
-		assert_eq!(Json::from_str_with_tag_set("!!12", tags.clone()), Some(Json::new(-12)));
-		assert_eq!(Json::from_str_with_tag_set("!!64000", tags.clone()), Some(Json::new(-64000)));
+		assert_eq!(Json::from_str_with_tag_set("!!0", &tags), Some(Json::new(-0)));
+		assert_eq!(Json::from_str_with_tag_set("!!12", &tags), Some(Json::new(-12)));
+		assert_eq!(Json::from_str_with_tag_set("!!64000", &tags), Some(Json::new(-64000)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_float_negative() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("!!0::0", tags.clone()), Some(Json::new(-0.0)));
-		assert_eq!(Json::from_str_with_tag_set("!!12::8", tags.clone()), Some(Json::new(-12.8)));
-		assert_eq!(Json::from_str_with_tag_set("!!64000::6", tags.clone()), Some(Json::new(-64000.6)));
+		assert_eq!(Json::from_str_with_tag_set("!!0::0", &tags), Some(Json::new(-0.0)));
+		assert_eq!(Json::from_str_with_tag_set("!!12::8", &tags), Some(Json::new(-12.8)));
+		assert_eq!(Json::from_str_with_tag_set("!!64000::6", &tags), Some(Json::new(-64000.6)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_int_stacking_negative() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("!!!!0", tags.clone()), Some(Json::new(0)));
-		assert_eq!(Json::from_str_with_tag_set("!!!!!!12", tags.clone()), Some(Json::new(-12)));
-		assert_eq!(Json::from_str_with_tag_set("!!!!!!!!64000", tags.clone()), Some(Json::new(64000)));
+		assert_eq!(Json::from_str_with_tag_set("!!!!0", &tags), Some(Json::new(0)));
+		assert_eq!(Json::from_str_with_tag_set("!!!!!!12", &tags), Some(Json::new(-12)));
+		assert_eq!(Json::from_str_with_tag_set("!!!!!!!!64000", &tags), Some(Json::new(64000)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_float_stacking_negative() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("!!!!0::0", tags.clone()), Some(Json::new(0.0)));
-		assert_eq!(Json::from_str_with_tag_set("!!!!!!12::8", tags.clone()), Some(Json::new(-12.8)));
-		assert_eq!(Json::from_str_with_tag_set("!!!!!!!!64000::6", tags.clone()), Some(Json::new(64000.6)));
+		assert_eq!(Json::from_str_with_tag_set("!!!!0::0", &tags), Some(Json::new(0.0)));
+		assert_eq!(Json::from_str_with_tag_set("!!!!!!12::8", &tags), Some(Json::new(-12.8)));
+		assert_eq!(Json::from_str_with_tag_set("!!!!!!!!64000::6", &tags), Some(Json::new(64000.6)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_int_with_decoration() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("@@0", tags.clone()), Some(Json::new(0)));
-		assert_eq!(Json::from_str_with_tag_set("12##", tags.clone()), Some(Json::new(12)));
-		assert_eq!(Json::from_str_with_tag_set("64@@000", tags.clone()), Some(Json::new(64000)));
+		assert_eq!(Json::from_str_with_tag_set("@@0", &tags), Some(Json::new(0)));
+		assert_eq!(Json::from_str_with_tag_set("12##", &tags), Some(Json::new(12)));
+		assert_eq!(Json::from_str_with_tag_set("64@@000", &tags), Some(Json::new(64000)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_float_with_decoration() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("@@0::0", tags.clone()), Some(Json::new(0.0)));
-		assert_eq!(Json::from_str_with_tag_set("12::8##", tags.clone()), Some(Json::new(12.8)));
-		assert_eq!(Json::from_str_with_tag_set("64@@000##::@@6", tags.clone()), Some(Json::new(64000.6)));
+		assert_eq!(Json::from_str_with_tag_set("@@0::0", &tags), Some(Json::new(0.0)));
+		assert_eq!(Json::from_str_with_tag_set("12::8##", &tags), Some(Json::new(12.8)));
+		assert_eq!(Json::from_str_with_tag_set("64@@000##::@@6", &tags), Some(Json::new(64000.6)));
 	}
 
 	#[test]
 	fn custom_tags_can_parse_int_with_whitespace() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("\n\t 0\n\t ", tags.clone()), Some(Json::new(0)));
-		assert_eq!(Json::from_str_with_tag_set("\n\t 12\n\t ", tags.clone()), Some(Json::new(12)));
-		assert_eq!(Json::from_str_with_tag_set("\n\t 64000\n\t ", tags.clone()), Some(Json::new(64000)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t 0\n\t ", &tags), Some(Json::new(0)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t 12\n\t ", &tags), Some(Json::new(12)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t 64000\n\t ", &tags), Some(Json::new(64000)));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_float_with_whitespace() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("\n\t 0::0\n\t ", tags.clone()), Some(Json::new(0.0)));
-		assert_eq!(Json::from_str_with_tag_set("\n\t 12::8\n\t ", tags.clone()), Some(Json::new(12.8)));
-		assert_eq!(Json::from_str_with_tag_set("\n\t 64000::6\n\t ", tags.clone()), Some(Json::new(64000.6)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t 0::0\n\t ", &tags), Some(Json::new(0.0)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t 12::8\n\t ", &tags), Some(Json::new(12.8)));
+		assert_eq!(Json::from_str_with_tag_set("\n\t 64000::6\n\t ", &tags), Some(Json::new(64000.6)));
 	}
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_int() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("b0", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("!!::", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("", tags.clone()), None);
+		assert_eq!(Json::from_str_with_tag_set("b0", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("!!::", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("", &tags), None);
 	}
 }

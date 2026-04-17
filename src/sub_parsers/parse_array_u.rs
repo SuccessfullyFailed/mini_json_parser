@@ -42,25 +42,25 @@ mod tests {
 	#[test]
 	fn custom_tags_can_parse_array() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("{{::::}}", tags.clone()), Some(Json::new(Vec::<u8>::new())));
-		assert_eq!(Json::from_str_with_tag_set("{{::0|_|2|_|4|_|8::}}", tags.clone()), Some(Json::new(vec![0, 2, 4, 8])));
-		assert_eq!(Json::from_str_with_tag_set("{{::0|_|{{::1|_|2|_|3::}}|_|true::}}", tags.clone()), Some(Json::new(vec![Json::new(0), Json::new(vec![1, 2, 3]), Json::new(true)])));
+		assert_eq!(Json::from_str_with_tag_set("{{::::}}", &tags), Some(Json::new(Vec::<u8>::new())));
+		assert_eq!(Json::from_str_with_tag_set("{{::0|_|2|_|4|_|8::}}", &tags), Some(Json::new(vec![0, 2, 4, 8])));
+		assert_eq!(Json::from_str_with_tag_set("{{::0|_|{{::1|_|2|_|3::}}|_|true::}}", &tags), Some(Json::new(vec![Json::new(0), Json::new(vec![1, 2, 3]), Json::new(true)])));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_array_with_whitespace() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t ::}}\n\t ", tags.clone()), Some(Json::new(Vec::<u8>::new())));
-		assert_eq!(Json::from_str_with_tag_set("\n\t {{::0|_| 2|_| 4|_| 8::}}\n\t ", tags.clone()), Some(Json::new(vec![0, 2, 4, 8])));
-		assert_eq!(Json::from_str_with_tag_set("\n\t {{::0|_| {{::1|_| 2|_| 3::}}|_| true::}}\n\t ", tags.clone()), Some(Json::new(vec![Json::new(0), Json::new(vec![1, 2, 3]), Json::new(true)])));
+		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t ::}}\n\t ", &tags), Some(Json::new(Vec::<u8>::new())));
+		assert_eq!(Json::from_str_with_tag_set("\n\t {{::0|_| 2|_| 4|_| 8::}}\n\t ", &tags), Some(Json::new(vec![0, 2, 4, 8])));
+		assert_eq!(Json::from_str_with_tag_set("\n\t {{::0|_| {{::1|_| 2|_| 3::}}|_| true::}}\n\t ", &tags), Some(Json::new(vec![Json::new(0), Json::new(vec![1, 2, 3]), Json::new(true)])));
 	}
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_array() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("{{::'array_without_end'", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("::}}", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("{{::'broken_sub_array'|_| {{::::}}", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("", tags.clone()), None);
+		assert_eq!(Json::from_str_with_tag_set("{{::'array_without_end'", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("::}}", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("{{::'broken_sub_array'|_| {{::::}}", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("", &tags), None);
 	}
 }

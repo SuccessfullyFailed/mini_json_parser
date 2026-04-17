@@ -1,24 +1,30 @@
-use crate::{ JsonObj, JsonTags, sub_parsers::* };
+use crate::{ Json, JsonSource, JsonTags };
 
 
 
 pub(crate) struct JsonParseResult {
-	pub json:Box<dyn JsonObj>,
+	pub json:Json,
 	pub match_length:usize
 }
 impl JsonParseResult {
 
 	/// Create a new parse result.
-	pub fn new<J:JsonObj>(json:J, match_length:usize) -> JsonParseResult {
+	pub fn new<J:JsonSource>(json:J, match_length:usize) -> JsonParseResult {
 		JsonParseResult {
-			json: Box::new(json),
+			json: json.into_json(),
 			match_length
 		}
 	}
 
 	/// Try to get any result from the given str.
 	pub fn try_any(contents:&str, tags:&JsonTags) -> Option<JsonParseResult> {
-		const PARSERS:&[fn(&str, &JsonTags) -> Option<JsonParseResult>] = &[JsonBool::from_str, JsonNumber::from_str, JsonString::from_str, JsonArray::from_str, JsonDict::from_str];
+		const PARSERS:&[fn(&str, &JsonTags) -> Option<JsonParseResult>] = &[
+			JsonParseResult::try_parse_bool,
+			JsonParseResult::try_parse_number,
+			JsonParseResult::try_parse_string,
+			JsonParseResult::try_parse_array,
+			JsonParseResult::try_parse_dict
+		];
 
 		let whitespace_skip:usize = Self::whitespace_len(contents);
 		let contents:&str = &contents[whitespace_skip..];

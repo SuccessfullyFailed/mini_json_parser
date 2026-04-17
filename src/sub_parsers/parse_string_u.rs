@@ -48,29 +48,29 @@ mod tests {
 	#[test]
 	fn custom_tags_can_parse_string() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("{{::test::}}", tags.clone()), Some(Json::new("test")));
-		assert_eq!(Json::from_str_with_tag_set("{{::test with spaces::}}", tags.clone()), Some(Json::new("test with spaces")));
+		assert_eq!(Json::from_str_with_tag_set("{{::test::}}", &tags), Some(Json::new("test")));
+		assert_eq!(Json::from_str_with_tag_set("{{::test with spaces::}}", &tags), Some(Json::new("test with spaces")));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_escaped_string() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("{{::test//12::}}78::}}'", tags.clone()), Some(Json::new("test12::}}78")));
+		assert_eq!(Json::from_str_with_tag_set("{{::test//12::}}78::}}'", &tags), Some(Json::new("test12::}}78")));
 	}
 	
 	#[test]
 	fn custom_tags_can_parse_string_with_whitespace() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t test\n\t ::}}\n\t ", tags.clone()), Some(Json::new("\n\t test\n\t ")));
-		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t test with spaces\n\t ::}}\n\t ", tags.clone()), Some(Json::new("\n\t test with spaces\n\t ")));
+		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t test\n\t ::}}\n\t ", &tags), Some(Json::new("\n\t test\n\t ")));
+		assert_eq!(Json::from_str_with_tag_set("\n\t {{::\n\t test with spaces\n\t ::}}\n\t ", &tags), Some(Json::new("\n\t test with spaces\n\t ")));
 	}
 
 	#[test]
 	fn custom_tags_can_not_parse_invalid_string() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("test_without_quotes", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("\"test with one quote", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("\"test with original quotes\"", tags.clone()), None);
-		assert_eq!(Json::from_str_with_tag_set("", tags.clone()), None);
+		assert_eq!(Json::from_str_with_tag_set("test_without_quotes", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("\"test with one quote", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("\"test with original quotes\"", &tags), None);
+		assert_eq!(Json::from_str_with_tag_set("", &tags), None);
 	}
 }
