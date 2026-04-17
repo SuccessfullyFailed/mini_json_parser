@@ -52,6 +52,62 @@ impl Json {
 
 
 
+	/* CHILD METHODS */
+
+	/// Try to get a child by index.
+	/// Will only work on arrays or dictionaries with an integer as key.
+	pub fn child_by_index(&self, index:usize) -> Option<&Json> {
+		match self {
+			Json::Array(items) => items.get(index),
+			Json::Dict(_) => self.child_by_key(&Json::Int(index as i64)),
+			_ => None
+		}
+	}
+
+	/// Try to get mutable a child by index.
+	/// Will only work on arrays or dictionaries with an integer as key.
+	pub fn child_by_index_mut(&mut self, index:usize) -> Option<&mut Json> {
+		match self {
+			Json::Array(items) => items.get_mut(index),
+			Json::Dict(_) => self.child_by_key_mut(&Json::Int(index as i64)),
+			_ => None
+		}
+	}
+
+	/// Try to get a child by key.
+	/// Will only work on dictionaries.
+	pub fn child_by_key(&self, key:&Json) -> Option<&Json> {
+		match self {
+			Json::Dict(items) => {
+				if let Some((_, value)) = items.iter().find(|(item_key, _)| item_key == key) {
+					if let Some(value) = value {
+						return Some(value);
+					}
+				}
+				None
+			},
+			_ => None
+		}
+	}
+
+	/// Try to get a mutable child by key.
+	/// Will only work on dictionaries.
+	pub fn child_by_key_mut(&mut self, key:&Json) -> Option<&mut Json> {
+		match self {
+			Json::Dict(items) => {
+				if let Some((_, value)) = items.iter_mut().find(|(item_key, _)| item_key == key) {
+					if let Some(value) = value {
+						return Some(value);
+					}
+				}
+				None
+			},
+			_ => None
+		}
+	}
+
+
+
 	/* USAGE METHODS */
 
 	/// Convert the json to a string.
