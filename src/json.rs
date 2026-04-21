@@ -151,16 +151,20 @@ impl Json {
 
 			Json::Array(items) => {
 				format!(
-					"[{}]",
-					items.iter().map(|item| item.to_json_string(tag_set)).collect::<Vec<String>>().join(", ")
+					"{}{}{}",
+					tag_set.array_tags.open,
+					items.iter().map(|item| item.to_json_string(tag_set)).collect::<Vec<String>>().join(tag_set.array_tags.separator),
+					tag_set.array_tags.close
 				)
 			},
 			Json::Dict(items) => {
 				format!(
-					"[{}]",
+					"{}{}{}",
+					tag_set.dict_tags.open,
 					items.iter().map(|(key, value)|
-						format!("{}{}", key.to_string(), value.as_ref().map(|value| ":".to_string() + &value.to_json_string(tag_set)).unwrap_or_default())
-					).collect::<Vec<String>>().join(", ")
+						format!("{}{}", key.to_string(), value.as_ref().map(|value| tag_set.dict_tags.key_value_separator.to_string() + &value.to_json_string(tag_set)).unwrap_or_default())
+					).collect::<Vec<String>>().join(tag_set.dict_tags.item_separator),
+					tag_set.dict_tags.close
 				)
 			}
 		}
