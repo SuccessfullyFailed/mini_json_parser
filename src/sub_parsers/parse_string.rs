@@ -50,8 +50,8 @@ impl JsonStringTags {
 impl Default for JsonStringTags {
 	fn default() -> Self {
 		JsonStringTags::new(&[
-			("'", "'", &[("\\", 1)]),
-			("\"", "\"", &[("\\", 1)])
+			("\"", "\"", &[("\\", 1)]),
+			("'", "'", &[("\\", 1)])
 		])
 	}
 }
