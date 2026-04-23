@@ -9,7 +9,7 @@ source = "git+https://github.com/SuccessfullyFailed/file_ref#50018a1d2e4fd200681
 
 [[package]]
 name = "mini_json_parser"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "file_ref",
 ]

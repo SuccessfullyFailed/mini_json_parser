@@ -53,55 +53,66 @@ impl Json {
 
 	/* CHILD METHODS */
 
-	/// Try to get a child by index.
-	/// Will only work on arrays or dictionaries with an integer as key.
-	pub fn child_by_index(&self, index:usize) -> Option<&Json> {
-		match self {
-			Json::Array(items) => items.get(index),
-			Json::Dict(_) => self.child_by_key(&Json::Int(index as i64)),
-			_ => None
+	/// Try to get a child by type and selector.
+	pub fn get<T, Selector>(&self, selector:Selector) -> Option<T> where T:TryFrom<Json>, Json:From<Selector> {
+		if let Some(child) = self.get_child_json_by_selector(Json::from(selector)) {
+			if let Ok(child_value) = T::try_from(child.clone()) {
+				return Some(child_value);
+			}
 		}
+		None
 	}
 
-	/// Try to get mutable a child by index.
-	/// Will only work on arrays or dictionaries with an integer as key.
-	pub fn child_by_index_mut(&mut self, index:usize) -> Option<&mut Json> {
-		match self {
-			Json::Array(items) => items.get_mut(index),
-			Json::Dict(_) => self.child_by_key_mut(&Json::Int(index as i64)),
-			_ => None
-		}
-	}
+	/// Try to get a child json by selector.
+	fn get_child_json_by_selector(&self, selector:Json) -> Option<&Json> {
+		match selector {
 
-	/// Try to get a child by key.
-	/// Will only work on dictionaries.
-	pub fn child_by_key(&self, key:&Json) -> Option<&Json> {
-		match self {
-			Json::Dict(items) => {
-				if let Some((_, value)) = items.iter().find(|(item_key, _)| item_key == key) {
-					if let Some(value) = value {
-						return Some(value);
+			// If the selector is an array, sub-select recursively using each selector.
+			Json::Array(mut sub_selectors) => {
+				if sub_selectors.is_empty() {
+					None
+				} else {
+					let first_selector:Json = sub_selectors.remove(0);
+					match self.get_child_json_by_selector(first_selector) {
+						Some(sub_selection) => {
+							if sub_selectors.is_empty() {
+								Some(sub_selection)
+							} else {
+								sub_selection.get_child_json_by_selector(Json::Array(sub_selectors))
+							}
+						},
+						None => None
 					}
 				}
-				None
 			},
-			_ => None
-		}
-	}
 
-	/// Try to get a mutable child by key.
-	/// Will only work on dictionaries.
-	pub fn child_by_key_mut(&mut self, key:&Json) -> Option<&mut Json> {
-		match self {
-			Json::Dict(items) => {
-				if let Some((_, value)) = items.iter_mut().find(|(item_key, _)| item_key == key) {
-					if let Some(value) = value {
-						return Some(value);
-					}
+			// If the selector is not an array, sub-select based on the type of self.
+			selector => {
+				match self {
+
+					// Try to get the child of an array by index.
+					Json::Array(items) => {
+						match selector {
+							Json::Int(index) => items.get(index as usize),
+							_ => None
+						}
+					},
+
+					// Try to get a dictionary value by key.
+					Json::Dict(items) => {
+						match items.iter().find(|(item_key, _)| item_key == &selector) {
+							Some((_key, value)) => match value {
+								Some(value) => Some(value),
+								None => None
+							}
+							None => None
+						}
+					},
+
+					// Type of self does not allow child fetching.
+					_ => None
 				}
-				None
-			},
-			_ => None
+			}
 		}
 	}
 

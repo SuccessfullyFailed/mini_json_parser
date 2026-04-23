@@ -4,9 +4,12 @@ mod tests {
 
 	
 
+	const JSON_STRING:&str = "{ 'name': 'jeffrey', 'has_int_list': true, 'int_list': [0, 2, 4, 8, 16], random_factor: 19.12 }";
+
+
+
 	#[test]
 	fn can_parse_generic_json() {
-		const JSON_STRING:&str = "{ 'name': 'jeffrey', 'has_int_list': true, 'int_list': [0, 2, 4, 8, 16], 'random_factor': 19.12 }";
 		let json:Json = Json::from_str(JSON_STRING).unwrap();
 		assert_eq!(
 			json,
@@ -33,12 +36,20 @@ mod tests {
 						])
 					)
 				), (
-					Json::String("random_factor".to_string()),
+					Json::DictKey("random_factor".to_string()),
 					Some(
 						Json::Float(19.12)
 					)
 				),
 			])
 		)
+	}
+
+	#[test]
+	fn can_get_children() {
+		let json:Json = Json::from_str(JSON_STRING).unwrap();
+		assert_eq!(json.get("name"), Some("jeffrey".to_string()));
+		assert_eq!(json.get("int_list"), Some(vec![0, 2, 4, 8, 16]));
+		assert_eq!(json.get(vec![Json::new("int_list"), Json::new(2)]), Some(4));
 	}
 }
