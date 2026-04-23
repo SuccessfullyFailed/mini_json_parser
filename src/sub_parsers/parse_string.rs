@@ -1,4 +1,5 @@
 use crate::{ Json, JsonParseResult, JsonTags };
+use std::error::Error;
 
 
 
@@ -66,5 +67,15 @@ impl From<String> for Json {
 impl From<&str> for Json {
 	fn from(value:&str) -> Self {
 		Json::String(value.to_string())
+	}
+}
+impl TryFrom<Json> for String {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::String(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
 	}
 }

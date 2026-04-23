@@ -1,4 +1,5 @@
 use crate::{ Json, JsonParseResult, JsonTags };
+use std::error::Error;
 
 
 
@@ -90,6 +91,16 @@ macro_rules! impl_json_int {
 				Json::Int(value as i64)
 			}
 		}
+		impl TryFrom<Json> for $int_type {
+			type Error = Box<dyn Error>;
+
+			fn try_from(value:Json) -> Result<Self, Self::Error> {
+				match value {
+					Json::Int(value) => Ok(value as $int_type),
+					_ => Err("Could not create an integer from a json value that is not an integer.".into())
+				}
+			}
+		}
 	};
 }
 impl_json_int!(u64);
@@ -108,6 +119,16 @@ macro_rules! impl_json_float {
 		impl From<$float_type> for Json {
 			fn from(value:$float_type) -> Self {
 				Json::Float(value as f64)
+			}
+		}
+		impl TryFrom<Json> for $float_type {
+			type Error = Box<dyn Error>;
+			
+			fn try_from(value:Json) -> Result<Self, Self::Error> {
+				match value {
+					Json::Float(value) => Ok(value as $float_type),
+					_ => Err("Could not create a float from a json value that is not a float.".into())
+				}
 			}
 		}
 	};

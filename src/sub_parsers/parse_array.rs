@@ -1,4 +1,5 @@
 use crate::{ Json, JsonParseResult, JsonTags };
+use std::error::Error;
 
 
 
@@ -72,5 +73,24 @@ impl<T> From<Vec<T>> for Json where Json:From<T> {
 		Json::Array(
 			value.into_iter().map(Json::from).collect()
 		)
+	}
+}
+impl<T> TryFrom<Json> for Vec<T> where T:TryFrom<Json> {
+	type Error = Box<dyn Error>;
+
+	fn try_from(value:Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Array(items) => {
+				let mut output:Vec<T> = Vec::new();
+				for (item_index, item) in items.into_iter().enumerate() {
+					match T::try_from(item) {
+						Ok(value) => output.push(value),
+						Err(_) => return Err(format!("Item {item_index} in the Json Array could not be converted to the target type.").into())
+					}
+				}
+				Ok(output)
+			},
+			_ => Err("Could not create an array from a json value that is not an array.".into())
+		}
 	}
 }

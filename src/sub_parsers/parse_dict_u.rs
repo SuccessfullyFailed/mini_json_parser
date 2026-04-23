@@ -28,6 +28,13 @@ mod tests {
 		assert_eq!(Json::from_str(""), None);
 	}
 
+	#[test]
+	fn can_convert_to_and_from_json() {
+		let original:Vec<(u8, Option<bool>)> = vec![(0, None), (4, Some(true)), (16, Some(false)), (32, None)];
+		let as_json:Json = Json::new(original.clone());
+		assert_eq!(original, Vec::<(u8, Option<bool>)>::try_from(as_json).unwrap());
+	}
+
 
 
 	/* CUSTOM TAG SET */

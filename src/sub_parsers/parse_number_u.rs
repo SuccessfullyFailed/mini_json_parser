@@ -83,6 +83,13 @@ mod tests {
 		assert_eq!(Json::from_str(""), None);
 	}
 
+	#[test]
+	fn can_convert_to_and_from_json() {
+		let original:i64 = -64_912;
+		let as_json:Json = Json::new(original);
+		assert_eq!(original, i64::try_from(as_json).unwrap());
+	}
+
 
 
 	/* CUSTOM TAG SET */

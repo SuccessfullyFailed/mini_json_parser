@@ -51,6 +51,13 @@ mod tests {
 		assert_eq!(Json::from_str(""), None);
 	}
 
+	#[test]
+	fn can_convert_to_and_from_json() {
+		let original:bool = true;
+		let as_json:Json = Json::new(original);
+		assert_eq!(original, bool::try_from(as_json).unwrap());
+	}
+
 
 
 	/* CUSTOM TAG SET */

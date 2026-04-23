@@ -1,4 +1,5 @@
 use crate::{ Json, JsonParseResult, JsonTags };
+use std::error::Error;
 
 
 
@@ -104,5 +105,30 @@ impl<Key, Value> From<Vec<(Key, Value)>> for Json where Json:From<Key> + From<Va
 		Json::Dict(
 			value.into_iter().map(|(key, value)| (Json::from(key), Some(Json::from(value)))).collect()
 		)
+	}
+}
+impl<'a, Key, Value> TryFrom<Json> for Vec<(Key, Option<Value>)> where Key:TryFrom<Json>, Value:TryFrom<Json> {
+	type Error = Box<dyn Error>;
+
+	fn try_from(value:Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Dict(items) => {
+				let mut output:Vec<(Key, Option<Value>)> = Vec::new();
+				for (item_index, (key, value)) in items.into_iter().enumerate() {
+					match Key::try_from(key) {
+						Ok(key) => match value {
+							Some(value) => match Value::try_from(value) {
+								Ok(value) => output.push((key, Some(value))),
+								Err(_) => return Err(format!("The value of item {item_index} in the Json Dictionary could not be converted to the target value type.").into())
+							},
+							None => output.push((key, None))
+						},
+						Err(_) => return Err(format!("The key of item {item_index} in the Json Dictionary could not be converted to the target key type.").into())
+					}
+				}
+				Ok(output)
+			},
+			_ => Err("Could not create a dictionary from a json value that is not a dictionary.".into())
+		}
 	}
 }
