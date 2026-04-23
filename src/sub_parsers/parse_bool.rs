@@ -1,4 +1,5 @@
 use crate::{ Json, JsonParseResult, JsonTags };
+use std::error::Error;
 
 
 
@@ -64,5 +65,15 @@ impl Default for JsonBoolTags {
 impl From<bool> for Json {
 	fn from(value:bool) -> Self {
 		Json::Bool(value)
+	}
+}
+impl TryFrom<Json> for bool {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Bool(value) => Ok(value),
+			_ => Err("Could not create a boolean from a json value that is not a boolean.".into())
+		}
 	}
 }

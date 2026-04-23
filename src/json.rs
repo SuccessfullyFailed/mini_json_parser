@@ -30,23 +30,20 @@ impl Json {
 	/// Create a new JSON struct from a file with the specified tag set.
 	pub fn from_file_with_tag_set(file_path:&str, tag_set:&JsonTags) -> Result<Json, Box<dyn Error>> {
 		let file_contents:String = FileRef::new(file_path).read()?;
-		match Json::from_str_with_tag_set(&file_contents, tag_set) {
-			Some(json) => Ok(json),
-			None => Err("Could not parse file contents into json.".into())
-		}
+		Json::from_str_with_tag_set(&file_contents, tag_set)
 	}
 
 	/// Create a new JSON struct from JSON contents.
-	pub fn from_str(contents:&str) -> Option<Json> {
+	pub fn from_str(contents:&str) -> Result<Json, Box<dyn Error>> {
 		Json::from_str_with_tag_set(contents, &JsonTags::default())
 	}
 
 	/// Create a new JSON struct from JSON contents with the specified tag set.
-	pub fn from_str_with_tag_set(contents:&str, tags:&JsonTags) -> Option<Json> {
+	pub fn from_str_with_tag_set(contents:&str, tags:&JsonTags) -> Result<Json, Box<dyn Error>> {
 		if let Some(json_result) = JsonParseResult::try_any(contents, tags) {
-			Some(json_result.json)
+			Ok(json_result.json)
 		} else {
-			None
+			Err("Could not parse Json from given str.".into())
 		}
 	}
 
