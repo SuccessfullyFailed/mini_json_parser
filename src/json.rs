@@ -18,8 +18,8 @@ impl Json {
 	/* CONSTRUCTOR METHODS */
 
 	/// Create a new JSON struct from a json object.
-	pub fn new<Source:JsonSource>(json_obj:Source) -> Json {
-		json_obj.into_json()
+	pub fn new<JsonSource>(json_obj:JsonSource) -> Json where Json:From<JsonSource> {
+		Json::from(json_obj)
 	}
 
 	/// Create a new JSON struct from a file.
@@ -173,20 +173,5 @@ impl Json {
 impl ToString for Json {
 	fn to_string(&self) -> String {
 		self.to_json_string(&JsonTags::default())
-	}
-}
-
-
-
-pub trait JsonSource {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json;
-}
-impl JsonSource for Json {
-
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		self
 	}
 }

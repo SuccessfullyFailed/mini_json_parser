@@ -1,4 +1,4 @@
-use crate::{ Json, JsonParseResult, JsonSource, JsonTags };
+use crate::{ Json, JsonParseResult, JsonTags };
 
 
 
@@ -58,17 +58,13 @@ impl Default for JsonStringTags {
 
 
 
-impl JsonSource for String {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::String(self)
+impl From<String> for Json {
+	fn from(value:String) -> Self {
+		Json::String(value)
 	}
 }
-impl JsonSource for &str {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::String(self.to_string())
+impl From<&str> for Json {
+	fn from(value:&str) -> Self {
+		Json::String(value.to_string())
 	}
 }

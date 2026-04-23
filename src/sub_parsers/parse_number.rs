@@ -1,4 +1,4 @@
-use crate::{ Json, JsonParseResult, JsonSource, JsonTags };
+use crate::{ Json, JsonParseResult, JsonTags };
 
 
 
@@ -82,73 +82,35 @@ impl Default for JsonNumberTags {
 }
 
 
-impl JsonSource for f64 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Float(self)
-	}
+
+macro_rules! impl_json_int {
+	($int_type:ty) => {
+		impl From<$int_type> for Json {
+			fn from(value:$int_type) -> Self {
+				Json::Int(value as i64)
+			}
+		}
+	};
 }
-impl JsonSource for f32 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Float(self as f64)
-	}
+impl_json_int!(u64);
+impl_json_int!(u32);
+impl_json_int!(u16);
+impl_json_int!(u8);
+impl_json_int!(i64);
+impl_json_int!(i32);
+impl_json_int!(i16);
+impl_json_int!(i8);
+
+
+
+macro_rules! impl_json_float {
+	($float_type:ty) => {
+		impl From<$float_type> for Json {
+			fn from(value:$float_type) -> Self {
+				Json::Float(value as f64)
+			}
+		}
+	};
 }
-impl JsonSource for i64 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self)
-	}
-}
-impl JsonSource for i32 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
-impl JsonSource for i16 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
-impl JsonSource for i8 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
-impl JsonSource for u64 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
-impl JsonSource for u32 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
-impl JsonSource for u16 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
-impl JsonSource for u8 {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Int(self as i64)
-	}
-}
+impl_json_float!(f64);
+impl_json_float!(f32);

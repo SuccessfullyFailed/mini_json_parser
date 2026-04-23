@@ -1,4 +1,4 @@
-use crate::{ Json, JsonParseResult, JsonSource, JsonTags };
+use crate::{ Json, JsonParseResult, JsonTags };
 
 
 
@@ -7,7 +7,7 @@ impl JsonParseResult {
 	/// Try to parse a boolean JsonResult from a string.
 	/// Assumes the provided str is trimmed.
 	pub(crate) fn try_parse_bool(content:&str, tags:&JsonTags) -> Option<JsonParseResult> {
-		JsonParseResult::bool_from_str(content, tags).map(|(value, match_length)| JsonParseResult::new(value, match_length))
+		JsonParseResult::bool_from_str(content, tags).map(|(value, match_length)| JsonParseResult::new(Json::from(value), match_length))
 	}
 
 	/// try to parse a boolean from the given str.
@@ -61,10 +61,8 @@ impl Default for JsonBoolTags {
 
 
 
-impl JsonSource for bool {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
-		Json::Bool(self)
+impl From<bool> for Json {
+	fn from(value:bool) -> Self {
+		Json::Bool(value)
 	}
 }

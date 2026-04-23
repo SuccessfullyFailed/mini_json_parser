@@ -1,4 +1,4 @@
-use crate::{ Json, JsonParseResult, JsonSource, JsonTags };
+use crate::{ Json, JsonParseResult, JsonTags };
 
 
 
@@ -92,21 +92,17 @@ impl Default for JsonDictTags {
 
 
 
-impl<Key:JsonSource, Value:JsonSource> JsonSource for Vec<(Key, Option<Value>)> {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
+impl<Key, Value> From<Vec<(Key, Option<Value>)>> for Json where Json:From<Key> + From<Value> {
+	fn from(value:Vec<(Key, Option<Value>)>) -> Self {
 		Json::Dict(
-			self.into_iter().map(|(key, value)| (key.into_json(), value.map(|value| value.into_json()))).collect()
+			value.into_iter().map(|(key, value)| (Json::from(key), value.map(Json::from))).collect()
 		)
 	}
 }
-impl<Key:JsonSource, Value:JsonSource> JsonSource for Vec<(Key, Value)> {
-	
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
+impl<Key, Value> From<Vec<(Key, Value)>> for Json where Json:From<Key> + From<Value> {
+	fn from(value:Vec<(Key, Value)>) -> Self {
 		Json::Dict(
-			self.into_iter().map(|(key, value)| (key.into_json(), Some(value.into_json()))).collect()
+			value.into_iter().map(|(key, value)| (Json::from(key), Some(Json::from(value)))).collect()
 		)
 	}
 }

@@ -1,4 +1,4 @@
-use crate::{ Json, JsonSource, JsonTags };
+use crate::{ Json, JsonTags };
 
 
 
@@ -9,9 +9,9 @@ pub(crate) struct JsonParseResult {
 impl JsonParseResult {
 
 	/// Create a new parse result.
-	pub fn new<J:JsonSource>(json:J, match_length:usize) -> JsonParseResult {
+	pub fn new<JsonSource>(json:JsonSource, match_length:usize) -> JsonParseResult where Json:From<JsonSource> {
 		JsonParseResult {
-			json: json.into_json(),
+			json: Json::from(json),
 			match_length
 		}
 	}

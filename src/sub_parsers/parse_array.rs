@@ -1,4 +1,4 @@
-use crate::{ Json, JsonParseResult, JsonSource, JsonTags };
+use crate::{ Json, JsonParseResult, JsonTags };
 
 
 
@@ -67,12 +67,10 @@ impl Default for JsonArrayTags {
 
 
 
-impl<T:JsonSource> JsonSource for Vec<T> {
-
-	/// Turn the source into a json object.
-	fn into_json(self) -> Json {
+impl<T> From<Vec<T>> for Json where Json:From<T> {
+	fn from(value:Vec<T>) -> Self {
 		Json::Array(
-			self.into_iter().map(|value| value.into_json()).collect()
+			value.into_iter().map(Json::from).collect()
 		)
 	}
 }
