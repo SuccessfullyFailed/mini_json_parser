@@ -58,13 +58,6 @@ mod tests {
 		assert_eq!(original, bool::try_from(as_json).unwrap());
 	}
 
-	#[test]
-	fn can_convert_to_and_from_json() {
-		let original:bool = true;
-		let as_json:Json = Json::new(original);
-		assert_eq!(original, bool::try_from(as_json).unwrap());
-	}
-
 
 
 	/* CUSTOM TAG SET */
