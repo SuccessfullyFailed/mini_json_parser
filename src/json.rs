@@ -10,6 +10,8 @@ pub enum Json {
 	Int(i64),
 	Float(f64),
 	String(String),
+	DictKey(String),
+
 	Array(Vec<Json>),
 	Dict(Vec<(Json, Option<Json>)>)
 }
@@ -146,6 +148,10 @@ impl Json {
 				)
 			},
 
+			Json::DictKey(key) => {
+				key.to_string()
+			},
+
 			Json::Array(items) => {
 				format!(
 					"{}{}{}",
@@ -154,6 +160,7 @@ impl Json {
 					tag_set.array_tags.close
 				)
 			},
+
 			Json::Dict(items) => {
 				format!(
 					"{}{}{}",

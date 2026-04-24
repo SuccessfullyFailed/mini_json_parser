@@ -17,7 +17,7 @@ impl JsonParseResult {
 			// Keep collection json keys.
 			let mut items:Vec<(Json, Option<Json>)> = Vec::new();
 			let content_len:usize = content.len();
-			while let Some(key_json_result) = JsonParseResult::try_any(&content[cursor..], tags) {
+			while let Some(key_json_result) = Self::try_any_dict_key(&content[cursor..], tags) {
 				let key:Json = key_json_result.json;
 				cursor += key_json_result.match_length;
 				cursor += JsonParseResult::whitespace_len(&content[cursor..]);
@@ -61,6 +61,30 @@ impl JsonParseResult {
 			}
 		}
 		None
+	}
+
+	/// try to get any result from the given str.
+	/// If no actual json is found, tries to parse a dict key without quote marks.
+	fn try_any_dict_key(contents:&str, tags:&JsonTags) -> Option<JsonParseResult> {
+		match JsonParseResult::try_any(contents, tags) {
+			Some(result) => Some(result),
+			None => {
+				let contents_len:usize = contents.len();
+				let key_val_separator:&str = tags.dict_tags.key_value_separator;
+				let key_val_separator_len:usize = key_val_separator.len();
+
+				let cursor_start:usize = Self::whitespace_len(contents);
+				let mut cursor:usize = cursor_start;
+				let cursor_end:usize = contents_len.max(key_val_separator_len) - key_val_separator_len;
+				while cursor < cursor_end {
+					if contents[cursor..].starts_with(&key_val_separator) {
+						return Some(JsonParseResult::new(Json::DictKey(contents[cursor_start..cursor].trim().to_string()), cursor))
+					}
+					cursor += 1;
+				}
+				None
+			}
+		}
 	}
 }
 

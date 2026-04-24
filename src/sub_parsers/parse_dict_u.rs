@@ -29,6 +29,11 @@ mod tests {
 	}
 
 	#[test]
+	fn can_parse_key_str_without_quotes() {
+		assert_eq!(Json::from_str("{test_key:100}").unwrap(), Json::new(vec![(Json::DictKey("test_key".to_string()), Some(Json::Int(100)))]));
+	}
+
+	#[test]
 	fn can_convert_to_and_from_json() {
 		let original:Vec<(u8, Option<bool>)> = vec![(0, None), (4, Some(true)), (16, Some(false)), (32, None)];
 		let as_json:Json = Json::new(original.clone());
@@ -60,6 +65,12 @@ mod tests {
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{::::}}\n\t ", &tags).unwrap(), Json::new(Vec::<(u8, Option<u8>)>::new()));
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{:: 0|_| 2|_| 4|_| 8 ::}}\n\t ", &tags).unwrap(), Json::new(vec![(0, None::<u8>), (2, None::<u8>), (4, None::<u8>), (8, None::<u8>)]));
 		assert_eq!(Json::from_str_with_tag_set("\n\t {{:: 0 == 'a'|_| 2 == 'b'|_| 4 == 'c'|_| 8 == 'd' ::}}\n\t ", &tags).unwrap(), Json::new(vec![(0, Some("a")), (2, Some("b")), (4, Some("c")), (8, Some("d"))]));
+	}
+
+	#[test]
+	fn custom_tags_can_parse_key_str_without_quotes() {
+		let tags:JsonTags = custom_tags();
+		assert_eq!(Json::from_str_with_tag_set("{{::test_key==100::}}", &tags).unwrap(), Json::new(vec![(Json::DictKey("test_key".to_string()), Some(Json::Int(100)))]));
 	}
 
 	#[test]
