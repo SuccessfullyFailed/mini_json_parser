@@ -114,6 +114,59 @@ impl Json {
 		}
 	}
 
+	/// Try to get a mutable child json by selector.
+	pub fn get_json_mut(&mut self, selector:Json) -> Option<&mut Json> {
+		match selector {
+
+			// If the selector is an array, sub-select recursively using each selector.
+			Json::Array(mut sub_selectors) => {
+				if sub_selectors.is_empty() {
+					None
+				} else {
+					let first_selector:Json = sub_selectors.remove(0);
+					match self.get_json_mut(first_selector) {
+						Some(sub_selection) => {
+							if sub_selectors.is_empty() {
+								Some(sub_selection)
+							} else {
+								sub_selection.get_json_mut(Json::Array(sub_selectors))
+							}
+						},
+						None => None
+					}
+				}
+			},
+
+			// If the selector is not an array, sub-select based on the type of self.
+			selector => {
+				match self {
+
+					// Try to get the child of an array by index.
+					Json::Array(items) => {
+						match selector {
+							Json::Int(index) => items.get_mut(index as usize),
+							_ => None
+						}
+					},
+
+					// Try to get a dictionary value by key.
+					Json::Dict(items) => {
+						match items.iter_mut().find(|(item_key, _)| item_key == &selector) {
+							Some((_key, value)) => match value {
+								Some(value) => Some(value),
+								None => None
+							}
+							None => None
+						}
+					},
+
+					// Type of self does not allow child fetching.
+					_ => None
+				}
+			}
+		}
+	}
+
 
 
 	/* USAGE METHODS */
