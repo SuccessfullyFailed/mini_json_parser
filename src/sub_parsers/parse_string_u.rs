@@ -41,6 +41,13 @@ mod tests {
 		assert_eq!(original, String::try_from(as_json).unwrap());
 	}
 
+	#[test]
+	fn can_convert_to_and_from_json() {
+		let original:String = String::from("test_string::?");
+		let as_json:Json = Json::new(original.clone());
+		assert_eq!(original, String::try_from(as_json).unwrap());
+	}
+
 
 
 	/* CUSTOM TAG SET */

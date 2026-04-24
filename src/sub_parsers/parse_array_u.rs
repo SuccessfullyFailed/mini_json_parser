@@ -35,6 +35,13 @@ mod tests {
 		assert_eq!(original, Vec::<u8>::try_from(as_json).unwrap());
 	}
 
+	#[test]
+	fn can_convert_to_and_from_json() {
+		let original:Vec<u8> = vec![0, 4, 16, 32, 64, 128, 3];
+		let as_json:Json = Json::new(original.clone());
+		assert_eq!(original, Vec::<u8>::try_from(as_json).unwrap());
+	}
+
 
 
 	/* CUSTOM TAG SET */
