@@ -53,7 +53,7 @@ impl Json {
 
 	/// Try to get a child by type and selector.
 	pub fn get<T, Selector>(&self, selector:Selector) -> Option<T> where T:TryFrom<Json>, Json:From<Selector> {
-		if let Some(child) = self.get_json(Json::from(selector)) {
+		if let Some(child) = self.get_json(selector) {
 			if let Ok(child_value) = T::try_from(child.clone()) {
 				return Some(child_value);
 			}
@@ -62,7 +62,8 @@ impl Json {
 	}
 
 	/// Try to get a child json by selector.
-	pub fn get_json(&self, selector:Json) -> Option<&Json> {
+	pub fn get_json<Selector>(&self, selector:Selector) -> Option<&Json> where Json:From<Selector> {
+		let selector:Json = Json::from(selector);
 		match selector {
 
 			// If the selector is an array, sub-select recursively using each selector.
@@ -71,12 +72,12 @@ impl Json {
 					None
 				} else {
 					let first_selector:Json = sub_selectors.remove(0);
-					match self.get_json(first_selector) {
+					match self.get_json::<Json>(first_selector) {
 						Some(sub_selection) => {
 							if sub_selectors.is_empty() {
 								Some(sub_selection)
 							} else {
-								sub_selection.get_json(Json::Array(sub_selectors))
+								sub_selection.get_json::<Json>(Json::Array(sub_selectors))
 							}
 						},
 						None => None
@@ -115,7 +116,8 @@ impl Json {
 	}
 
 	/// Try to get a mutable child json by selector.
-	pub fn get_json_mut(&mut self, selector:Json) -> Option<&mut Json> {
+	pub fn get_json_mut<Selector>(&mut self, selector:Selector) -> Option<&mut Json> where Json:From<Selector> {
+		let selector:Json = Json::from(selector);
 		match selector {
 
 			// If the selector is an array, sub-select recursively using each selector.
@@ -124,12 +126,12 @@ impl Json {
 					None
 				} else {
 					let first_selector:Json = sub_selectors.remove(0);
-					match self.get_json_mut(first_selector) {
+					match self.get_json_mut::<Json>(first_selector) {
 						Some(sub_selection) => {
 							if sub_selectors.is_empty() {
 								Some(sub_selection)
 							} else {
-								sub_selection.get_json_mut(Json::Array(sub_selectors))
+								sub_selection.get_json_mut::<Json>(Json::Array(sub_selectors))
 							}
 						},
 						None => None
