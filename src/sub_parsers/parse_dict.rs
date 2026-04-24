@@ -134,7 +134,7 @@ impl<Key, Value> From<Vec<(Key, Value)>> for Json where Json:From<Key> + From<Va
 		)
 	}
 }
-impl<'a, Key, Value> TryFrom<Json> for Vec<(Key, Option<Value>)> where Key:TryFrom<Json>, Value:TryFrom<Json> {
+impl<Key, Value> TryFrom<Json> for Vec<(Key, Option<Value>)> where Key:TryFrom<Json>, Value:TryFrom<Json> {
 	type Error = Box<dyn Error>;
 
 	fn try_from(value:Json) -> Result<Self, Self::Error> {
@@ -145,6 +145,56 @@ impl<'a, Key, Value> TryFrom<Json> for Vec<(Key, Option<Value>)> where Key:TryFr
 					match Key::try_from(key) {
 						Ok(key) => match value {
 							Some(value) => match Value::try_from(value) {
+								Ok(value) => output.push((key, Some(value))),
+								Err(_) => return Err(format!("The value of item {item_index} in the Json Dictionary could not be converted to the target value type.").into())
+							},
+							None => output.push((key, None))
+						},
+						Err(_) => return Err(format!("The key of item {item_index} in the Json Dictionary could not be converted to the target key type.").into())
+					}
+				}
+				Ok(output)
+			},
+			_ => Err("Could not create a dictionary from a json value that is not a dictionary.".into())
+		}
+	}
+}
+impl<'a, Key, Value> TryFrom<&'a Json> for Vec<(&'a Key, Option<&'a Value>)> where &'a Key:TryFrom<&'a Json>, &'a Value:TryFrom<&'a Json> {
+	type Error = Box<dyn Error>;
+
+	fn try_from(value:&'a Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Dict(items) => {
+				let mut output:Vec<(&'a Key, Option<&'a Value>)> = Vec::new();
+				for (item_index, (key, value)) in items.into_iter().enumerate() {
+					match <&'a Key>::try_from(key) {
+						Ok(key) => match value {
+							Some(value) => match <&'a Value>::try_from(value) {
+								Ok(value) => output.push((key, Some(value))),
+								Err(_) => return Err(format!("The value of item {item_index} in the Json Dictionary could not be converted to the target value type.").into())
+							},
+							None => output.push((key, None))
+						},
+						Err(_) => return Err(format!("The key of item {item_index} in the Json Dictionary could not be converted to the target key type.").into())
+					}
+				}
+				Ok(output)
+			},
+			_ => Err("Could not create a dictionary from a json value that is not a dictionary.".into())
+		}
+	}
+}
+impl<'a, Key, Value> TryFrom<&'a mut Json> for Vec<(&'a mut Key, Option<&'a mut Value>)> where &'a mut Key:TryFrom<&'a mut Json>, &'a mut Value:TryFrom<&'a mut Json> {
+	type Error = Box<dyn Error>;
+
+	fn try_from(value:&'a mut Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Dict(items) => {
+				let mut output:Vec<(&'a mut Key, Option<&'a mut Value>)> = Vec::new();
+				for (item_index, (key, value)) in items.into_iter().enumerate() {
+					match <&'a mut Key>::try_from(key) {
+						Ok(key) => match value {
+							Some(value) => match <&'a mut Value>::try_from(value) {
 								Ok(value) => output.push((key, Some(value))),
 								Err(_) => return Err(format!("The value of item {item_index} in the Json Dictionary could not be converted to the target value type.").into())
 							},

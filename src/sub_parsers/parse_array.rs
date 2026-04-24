@@ -94,3 +94,41 @@ impl<T> TryFrom<Json> for Vec<T> where T:TryFrom<Json> {
 		}
 	}
 }
+impl<'a, T> TryFrom<&'a Json> for Vec<&'a T> where &'a T:TryFrom<&'a Json> {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Array(value) => {
+				let mut output:Vec<&'a T> = Vec::new();
+				for (item_index, item) in value.into_iter().enumerate() {
+					match <&'a T>::try_from(item) {
+						Ok(value) => output.push(value),
+						Err(_) => return Err(format!("Item {item_index} in the Json Array could not be converted to the target type.").into())
+					}
+				}
+				Ok(output)
+			},
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a, T> TryFrom<&'a mut Json> for Vec<&'a mut T> where &'a mut T:TryFrom<&'a mut Json> {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a mut Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Array(value) => {
+				let mut output:Vec<&'a mut T> = Vec::new();
+				for (item_index, item) in value.into_iter().enumerate() {
+					match <&'a mut T>::try_from(item) {
+						Ok(value) => output.push(value),
+						Err(_) => return Err(format!("Item {item_index} in the Json Array could not be converted to the target type.").into())
+					}
+				}
+				Ok(output)
+			},
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}

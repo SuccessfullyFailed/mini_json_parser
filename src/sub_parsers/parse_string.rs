@@ -79,3 +79,43 @@ impl TryFrom<Json> for String {
 		}
 	}
 }
+impl<'a> TryFrom<&'a Json> for &'a String {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::String(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a> TryFrom<&'a mut Json> for &'a mut String {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a mut Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::String(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a> TryFrom<&'a Json> for &'a str {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::String(value) => Ok(value.as_str()),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a> TryFrom<&'a mut Json> for &'a mut str {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a mut Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::String(value) => Ok(value.as_mut_str()),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}

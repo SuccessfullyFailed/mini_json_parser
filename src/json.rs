@@ -52,9 +52,19 @@ impl Json {
 	/* CHILD METHODS */
 
 	/// Try to get a child by type and selector.
-	pub fn get<T, Selector>(&self, selector:Selector) -> Option<T> where T:TryFrom<Json>, Json:From<Selector> {
+	pub fn get<'a, T, Selector>(&'a self, selector:Selector) -> Option<&'a T> where &'a T:TryFrom<&'a Json>, Json:From<Selector> {
 		if let Some(child) = self.get_json(selector) {
-			if let Ok(child_value) = T::try_from(child.clone()) {
+			if let Ok(child_value) = <&'a T>::try_from(child) {
+				return Some(child_value);
+			}
+		}
+		None
+	}
+
+	/// Try to get a mutable child by type and selector.
+	pub fn get_mut<'a, T, Selector>(&'a mut self, selector:Selector) -> Option<&'a mut T> where &'a mut T:TryFrom<&'a mut Json>, Json:From<Selector> {
+		if let Some(child) = self.get_json_mut(selector) {
+			if let Ok(child_value) = <&'a mut T>::try_from(child) {
 				return Some(child_value);
 			}
 		}
@@ -62,7 +72,7 @@ impl Json {
 	}
 
 	/// Try to get a child json by selector.
-	pub fn get_json<Selector>(&self, selector:Selector) -> Option<&Json> where Json:From<Selector> {
+	fn get_json<Selector>(&self, selector:Selector) -> Option<&Json> where Json:From<Selector> {
 		let selector:Json = Json::from(selector);
 		match selector {
 
@@ -116,7 +126,7 @@ impl Json {
 	}
 
 	/// Try to get a mutable child json by selector.
-	pub fn get_json_mut<Selector>(&mut self, selector:Selector) -> Option<&mut Json> where Json:From<Selector> {
+	fn get_json_mut<Selector>(&mut self, selector:Selector) -> Option<&mut Json> where Json:From<Selector> {
 		let selector:Json = Json::from(selector);
 		match selector {
 

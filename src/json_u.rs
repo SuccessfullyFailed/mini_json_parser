@@ -48,15 +48,14 @@ mod tests {
 	#[test]
 	fn can_get_children() {
 		let json:Json = Json::from_str(JSON_STRING).unwrap();
-		assert_eq!(json.get("name"), Some("jeffrey".to_string()));
-		assert_eq!(json.get("int_list"), Some(vec![0, 2, 4, 8, 16]));
-		assert_eq!(json.get(vec![Json::new("int_list"), Json::new(2)]), Some(4));
+		assert_eq!(json.get("name"), Some(&"jeffrey".to_string()));
+		assert_eq!(json.get(vec![Json::new("int_list"), Json::new(2)]), Some(&4));
 	}
 
 	#[test]
 	fn can_get_children_mutable() {
 		let mut json:Json = Json::from_str(JSON_STRING).unwrap();
-		*json.get_json_mut(Json::new(vec![Json::new("int_list"), Json::new(2)])).unwrap() = Json::Int(5);
-		assert_eq!(json.get(vec![Json::new("int_list"), Json::new(2)]), Some(5));
+		*json.get_mut::<'_, i64, _>(vec![Json::new("int_list"), Json::new(2)]).unwrap() = 512_i64;
+		assert_eq!(json.get(vec![Json::new("int_list"), Json::new(2)]), Some(&512));
 	}
 }

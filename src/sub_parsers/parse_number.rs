@@ -84,6 +84,49 @@ impl Default for JsonNumberTags {
 
 
 
+impl<'a> TryFrom<&'a Json> for &'a i64 {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Int(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a> TryFrom<&'a mut Json> for &'a mut i64 {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a mut Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Int(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a> TryFrom<&'a Json> for &'a f64 {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Float(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+impl<'a> TryFrom<&'a mut Json> for &'a mut f64 {
+	type Error = Box<dyn Error>;
+	
+	fn try_from(value:&'a mut Json) -> Result<Self, Self::Error> {
+		match value {
+			Json::Float(value) => Ok(value),
+			_ => Err("Could not create a string from a json value that is not a string.".into())
+		}
+	}
+}
+
+
+
 macro_rules! impl_json_int {
 	($int_type:ty) => {
 		impl From<$int_type> for Json {
