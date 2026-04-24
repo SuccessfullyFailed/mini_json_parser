@@ -78,7 +78,10 @@ impl JsonParseResult {
 				let cursor_end:usize = contents_len.max(key_val_separator_len) - key_val_separator_len;
 				while cursor < cursor_end {
 					if contents[cursor..].starts_with(&key_val_separator) {
-						return Some(JsonParseResult::new(Json::DictKey(contents[cursor_start..cursor].trim().to_string()), cursor))
+						return Some(JsonParseResult::new(
+							Json::String(contents[cursor_start..cursor].trim().to_string()),
+							cursor
+						));
 					}
 					cursor += 1;
 				}

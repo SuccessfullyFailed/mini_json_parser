@@ -30,7 +30,7 @@ mod tests {
 
 	#[test]
 	fn can_parse_key_str_without_quotes() {
-		assert_eq!(Json::from_str("{test_key:100}").unwrap(), Json::new(vec![(Json::DictKey("test_key".to_string()), Some(Json::Int(100)))]));
+		assert_eq!(Json::from_str("{test_key:100}").unwrap(), Json::new(vec![(Json::String("test_key".to_string()), Some(Json::Int(100)))]));
 	}
 
 	#[test]
@@ -70,7 +70,7 @@ mod tests {
 	#[test]
 	fn custom_tags_can_parse_key_str_without_quotes() {
 		let tags:JsonTags = custom_tags();
-		assert_eq!(Json::from_str_with_tag_set("{{::test_key==100::}}", &tags).unwrap(), Json::new(vec![(Json::DictKey("test_key".to_string()), Some(Json::Int(100)))]));
+		assert_eq!(Json::from_str_with_tag_set("{{::test_key==100::}}", &tags).unwrap(), Json::new(vec![(Json::String("test_key".to_string()), Some(Json::Int(100)))]));
 	}
 
 	#[test]

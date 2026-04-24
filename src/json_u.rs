@@ -36,7 +36,7 @@ mod tests {
 						])
 					)
 				), (
-					Json::DictKey("random_factor".to_string()),
+					Json::String("random_factor".to_string()),
 					Some(
 						Json::Float(19.12)
 					)

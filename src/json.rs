@@ -10,8 +10,6 @@ pub enum Json {
 	Int(i64),
 	Float(f64),
 	String(String),
-	DictKey(String),
-
 	Array(Vec<Json>),
 	Dict(Vec<(Json, Option<Json>)>)
 }
@@ -157,10 +155,6 @@ impl Json {
 					string, // TODO: Add automated escaping
 					tag_set.string_tags.quote_types[0].1
 				)
-			},
-
-			Json::DictKey(key) => {
-				key.to_string()
 			},
 
 			Json::Array(items) => {
