@@ -53,7 +53,7 @@ impl Json {
 
 	/// Try to get a child by type and selector.
 	pub fn get<T, Selector>(&self, selector:Selector) -> Option<T> where T:TryFrom<Json>, Json:From<Selector> {
-		if let Some(child) = self.get_child_json_by_selector(Json::from(selector)) {
+		if let Some(child) = self.get_json(Json::from(selector)) {
 			if let Ok(child_value) = T::try_from(child.clone()) {
 				return Some(child_value);
 			}
@@ -62,7 +62,7 @@ impl Json {
 	}
 
 	/// Try to get a child json by selector.
-	fn get_child_json_by_selector(&self, selector:Json) -> Option<&Json> {
+	pub fn get_json(&self, selector:Json) -> Option<&Json> {
 		match selector {
 
 			// If the selector is an array, sub-select recursively using each selector.
@@ -71,12 +71,12 @@ impl Json {
 					None
 				} else {
 					let first_selector:Json = sub_selectors.remove(0);
-					match self.get_child_json_by_selector(first_selector) {
+					match self.get_json(first_selector) {
 						Some(sub_selection) => {
 							if sub_selectors.is_empty() {
 								Some(sub_selection)
 							} else {
-								sub_selection.get_child_json_by_selector(Json::Array(sub_selectors))
+								sub_selection.get_json(Json::Array(sub_selectors))
 							}
 						},
 						None => None
