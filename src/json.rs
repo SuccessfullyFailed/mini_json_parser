@@ -235,9 +235,17 @@ impl Json {
 				format!(
 					"{}{}{}",
 					tag_set.dict_tags.open,
-					items.iter().map(|(key, value)|
-						format!("{}{}", key.to_string(), value.as_ref().map(|value| tag_set.dict_tags.key_value_separator.to_string() + &value.to_json_string(tag_set)).unwrap_or_default())
-					).collect::<Vec<String>>().join(tag_set.dict_tags.item_separator),
+					items.iter().map(|(key, value)| {
+						format!(
+							"{}{}",
+							if tag_set.dict_tags.quoted_str_keys {
+								key.to_string()
+							} else {
+								key.to_string().trim_start_matches(tag_set.string_tags.quote_types[0].0).trim_end_matches(tag_set.string_tags.quote_types[0].1).to_string()
+							},
+							value.as_ref().map(|value| tag_set.dict_tags.key_value_separator.to_string() + &value.to_json_string(tag_set)).unwrap_or_default()
+						)
+					}).collect::<Vec<String>>().join(tag_set.dict_tags.item_separator),
 					tag_set.dict_tags.close
 				)
 			}

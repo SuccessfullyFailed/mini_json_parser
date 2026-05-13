@@ -98,23 +98,25 @@ pub struct JsonDictTags {
 	pub open:&'static str,
 	pub key_value_separator:&'static str,
 	pub item_separator:&'static str,
-	pub close:&'static str
+	pub close:&'static str,
+	pub quoted_str_keys:bool
 }
 impl JsonDictTags {
 
 	/// Create a new JsonDictTags set.
-	pub const fn new(open:&'static str, key_value_separator:&'static str, item_separator:&'static str, close:&'static str) -> JsonDictTags {
+	pub const fn new(open:&'static str, key_value_separator:&'static str, item_separator:&'static str, close:&'static str, quoted_str_keys:bool) -> JsonDictTags {
 		JsonDictTags {
 			open,
 			key_value_separator,
 			item_separator,
-			close
+			close,
+			quoted_str_keys
 		}
 	}
 }
 impl Default for JsonDictTags {
 	fn default() -> Self {
-		JsonDictTags::new("{", ":", ",", "}")
+		JsonDictTags::new("{", ":", ",", "}", true)
 	}
 }
 

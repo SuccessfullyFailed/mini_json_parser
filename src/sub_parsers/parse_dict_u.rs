@@ -46,7 +46,7 @@ mod tests {
 
 	fn custom_tags() -> JsonTags {
 		JsonTags {
-			dict_tags: JsonDictTags::new("{{::", "==", "|_|", "::}}"),
+			dict_tags: JsonDictTags::new("{{::", "==", "|_|", "::}}", false),
 			..Default::default()
 		}
 	}
